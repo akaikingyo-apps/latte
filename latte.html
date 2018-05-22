@@ -466,12 +466,27 @@ if (!inDesignMode) {
 	$("table").each(function() {
 		var row;
 		var skipFirstRow;
-		if ($(this).find("> tbody > tr > th").length > 0) {
-			row = $(this).find("> tbody > tr > th").first();
+		var ths = $(this).find("> tbody > tr > th");
+		var tds = $(this).find("> tbody > tr > td");
+		if (ths.length > 0) {
+			row = ths.first();
 			skipFirstRow = false;
-		} else {
-			row = $(this).find("> tbody > tr > td").first();
+		} else if (tds.length > 0) {
+			row = tds.first();
 			skipFirstRow = true;
+		} else {
+			ths = $(this).find("> tr > th");
+			tds = $(this).find("> tr > td");
+			if (ths.length > 0) {
+				row = ths.first();
+				skipFirstRow = false;
+			} else if (tds.length > 0) {
+				row = tds.first();
+				skipFirstRow = true;
+			} else {
+				// table with no row!
+				return;
+			}
 		}
 		var parameters = extractParameters(trim(row.text()));
 		var table = row.parent().parent().parent();
