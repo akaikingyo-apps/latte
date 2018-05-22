@@ -1,0 +1,865 @@
+<script type="text/javascript">
+<!--
+
+/* project latte */
+
+var inDesignMode = document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1";
+var hasAccordions = false;
+var hasTabulators = false;
+var hasPopups = false;
+var hasPopupMenus = false;
+var nextTabId = 1;
+var nextCarouselId = 1;
+var nextPopupId = 1;
+var nextMapId = 1;
+var popupIds = [];
+var popupMenus = [];
+var autoExpands = {};
+
+// the core functions
+
+function makeAccordion(table, skipFirstRow, parameters) {
+	var titles = [];
+	var bodies = [];
+	var isFirstRow = skipFirstRow;
+	var isTitle = true;
+	table.find("> tbody > tr > td").each(function() {
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else {
+			if (isTitle) {
+				titles.push($(this).text());
+			} else {
+				bodies.push($(this).html());
+			}
+			isTitle = !isTitle;
+		}
+	});
+
+	table.hide();
+
+	var html = "";
+
+	for (var i = 0 ; i < titles.length ; i ++) {
+		var p = extractParameters(titles[i]);
+		var title = removeParameters(titles[i]);
+		if (p.name != undefined) {
+			html += "<a name='" + p.name + "'></a>";
+			html += "<div class='accordion' id='accordion-" + p.name + "'>" + title + "</div>";
+			var accordionId = "#accordion-" + p.name;
+			autoExpands[p.name] = new Function("var button=$('" + accordionId + "'); toggleAccordion(button); scrollTo(button);");
+		} else {
+			html += "<div class='accordion'>" + title + "</div>";
+		}
+		if (i < bodies.length) {
+			html += "<div class='panel'>" + bodies[i] + "</div>";
+		} else {
+			html += "<div class='panel'></div>";
+		}
+	}
+
+	$(html).insertAfter(table);
+}
+
+function makeTabulator(table, skipFirstRow, parameters) {
+	var titles = [];
+	var bodies = [];
+	var isFirstRow = skipFirstRow;
+	var isTitle = true;
+	var tabWidth = parameters.headerwidth != undefined ? parseInt(parameters.headerwidth) : -1;
+	table.find("> tbody > tr > td").each(function() {
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else {
+			if (isTitle) {
+				titles.push($(this).text());
+			} else {
+				bodies.push($(this).html());
+			}
+			isTitle = !isTitle;
+		}
+	});
+
+	table.hide();
+
+	var html = "<div id='tabulator" + nextTabId + "'><div class='tab-header'>";
+	for (var i = 0 ; i < titles.length ; i ++) {
+		var p = extractParameters(titles[i]);
+		var title = removeParameters(titles[i]);
+		var id = "";
+		var css = "";
+		if (i == 0) {
+			css = " active";
+		}
+
+		if (p.name != undefined) {
+			html += "<a name='" + p.name + "'></a>";
+			id = "id='tab-" + p.name + "'";
+			var tabId = "#tab-" + p.name;
+			autoExpands[p.name] = new Function("var button=$('" + tabId + "'); openTab(button, 'tabulator" + nextTabId + "', 'tab" + (nextTabId + i) + "'); scrollTo(button);");
+		}
+
+		var width = tabWidth;
+		var style = "";
+		if (p.width != undefined) {
+			width = parseInt(p.width);
+		}
+		if (width != -1) {
+			style = " style='width:" + width + "px'";
+		}
+
+		html += "<div " + id + "class='tab-button" + css + "'" + style + " onclick=\"openTab(this, 'tabulator" + nextTabId + "', 'tab" + (nextTabId + i) + "')\">" + title + "</div>";
+	}
+	html += "</div>";
+
+	for (var i = 0 ; i < bodies.length ; i ++) {
+		var style = "";
+		if (i != 0) {
+			style = "display:none";
+		}
+		html += "<div id='tab" + (nextTabId + i) + "' class='tab-body' style='" + style + "'>" + bodies[i] + "</div>";
+	}
+	html += "</div>";
+
+	nextTabId += titles.length;
+
+	$(html).insertAfter(table);
+}
+
+function makeCarousel(table, skipFirstRow, parameters) {
+	var bodies = [];
+	var isFirstRow = skipFirstRow;
+	table.find("> tbody > tr > td").each(function() {
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else {
+			bodies.push($(this).html());
+		}
+	});
+
+	table.hide();
+	var carouselId = "carousel" + nextCarouselId;
+
+	var html = "<div id='" + carouselId + "' class='carousel slide' data-ride='carousel'>";
+	html += "<ol class='carousel-indicators'>";
+	for (var i = 0 ; i < bodies.length ; i ++) {
+		var style = "";
+		if (i == 0) {
+			style = "active";
+		}
+		html += "<li data-target='#" + carouselId + "' data-slide-to='" + i + "' class='" + style + "'></li>";
+	}
+	html += "</ol>";;
+	html += "<div class='carousel-inner'>";
+
+	for (var i = 0 ; i < bodies.length ; i ++) {
+		var style = "";
+		if (i == 0) {
+			style = " active";
+		}
+		html += "<div class='item" + style + "'>" + bodies[i] + "</div>";
+	}
+	html += "</div>";
+
+	html += "<a class='left carousel-control' href='#" + carouselId + "' data-slide='prev'>";
+	html += "<span class='glyphicon glyphicon-chevron-left'></span>";
+	html += "<span class='sr-only'>Previous</span>";
+	html += "</a>";
+
+	html += "<a class='right carousel-control' href='#" + carouselId + "' data-slide='next'>";
+	html += "<span class='glyphicon glyphicon-chevron-right'></span>";
+	html += "<span class='sr-only'>Next</span>";
+	html += "</a>";
+
+	html += "</div>";
+
+	nextCarouselId ++;
+
+	$(html).insertAfter(table);
+}
+
+function makePopup(table, skipFirstRow, parameters) {
+	var popupId = parameters.name != undefined ? parameters.name : 'popup' + nextPopupId ++;
+	popupIds.push(popupId);
+	var title = null;
+	var contents = [];
+	var isFirstRow = skipFirstRow;
+	var isTitle = true;
+	table.find("> tbody > tr > td").each(function() {
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else {
+			if (isTitle) {
+				title = $(this).text();
+				isTitle = false;
+			}
+			contents.push($(this).html());
+		}
+	});
+
+	table.hide();
+
+	var content;
+	if (contents.length > 1) {
+		content = contents[1];
+	} else {
+		title = "";
+		content = contents[0];
+	}
+
+
+	var html = "<div id='" + popupId + "' class='popup'>";
+	html += "<div class='popup-content'>";
+	html += "<div class='popup-header'>";
+	html += "<span class='popup-close'>&times;</span>";
+	html += title;
+	html += "</div>";
+	html += "<div class='popup-body'>";
+	html += content;
+	html += "</div>";
+	html += "</div>";
+	html += "</div>";
+
+	$(html).insertAfter(table);
+}
+
+function makeFloat(table, skipFirstRow, parameters) {
+	var isFirstRow = skipFirstRow;
+	var content = "";
+	table.find("> tbody > tr > td").each(function() {
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else {
+
+			content = $(this).html();
+		}
+	});
+
+	table.hide();
+
+	var style = "";
+	if (parameters.offset != undefined) {
+		try {
+			style = " style='bottom:" + (parseInt(parameters.offset) + 90) + "px'";
+		} catch (e) {
+		}
+	}
+	var html = "<div class='float'" + style + ">";
+	html += content;
+	html += "</div>";
+
+	$(html).insertAfter(table);
+}
+
+function makePopupMenu(table, skipFirstRow, parameters) {
+	var isFirstRow = skipFirstRow;
+	var menu = {menu: []};
+	var current = null;
+
+	table.find("> tbody > tr").each(function() {
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else {
+			var level1Text = "";
+			var level1Link = null;
+			var level1LinkTarget = null;
+			var tds = $(this).find("td");
+			if (tds.length > 0) {
+				level1Text = trim($(tds[0]).text());
+				var anchor = $(tds[0]).find("a");
+				if (anchor.length > 0) {
+					level1Link = $(anchor[0]).attr('href');
+					level1LinkTarget = $(anchor[0]).attr('target');
+				}
+			}
+			var level2Text = "";
+			var level2Link = null;
+			var level2LinkTarget = null;
+			if (tds.length > 1) {
+				level2Text = trim($(tds[1]).text());
+				var anchor = $(tds[1]).find("a");
+				if (anchor.length > 0) {
+					level2Link = $(anchor[0]).attr('href');
+					level2LinkTarget = $(anchor[0]).attr('target');
+				}
+			}
+			if (level1Text != "") {
+				current = { title: level1Text, link: level1Link, linkTarget: level1LinkTarget, submenu: [] };
+				menu.menu.push(current);
+			}
+			if (current != null && level2Text != "") {
+				current.submenu.push({ title: level2Text, link: level2Link, linkTarget: level2LinkTarget });
+			}
+		}
+	});
+
+	table.hide();
+
+	if (parameters.name != undefined) {
+		menu["name"] = parameters.name;
+	}
+	if (parameters.offsetx != undefined) {
+		menu["offsetX"] = parseInt(parameters.offsetx);
+	} else {
+		menu["offsetX"] = 0;
+	}
+	if (parameters.offsety != undefined) {
+		menu["offsetY"] = parseInt(parameters.offsety);
+	} else {
+		menu["offsetY"] = 0;
+	}
+	if (parameters.width != undefined) {
+		menu["width"] = parseInt(parameters.width);
+	}
+	if (parameters.height != undefined) {
+		menu["height"] = parseInt(parameters.width);
+	}
+
+	if (menu.name == undefined) {
+		return;
+	}
+
+	popupMenus.push(menu);
+
+	var html = "<div id='popupmenu-" + menu.name + "' class='popupmenu' style='display:none' offsetX='" + menu.offsetX + "' offsetY='" + menu.offsetY + "'><ul>";
+	for (var i = 0 ; i < menu.menu.length ; i++) {
+		html += "<li>" + menu.menu[i].title;
+		var submenu = menu.menu[i].submenu;
+		if (submenu.length > 0) {
+			html += "<ul>";
+			for (var j = 0 ; j < submenu.length ; j++) {
+				html += "<li";
+				if (submenu[j].link != null) {
+					html += " link='" + htmlEncode(submenu[j].link) + "'";
+					if (submenu[j].linkTarget != null) {
+						html += " linktarget='" + htmlEncode(submenu[j].linkTarget) + "'";
+					}
+				}
+				html += ">" + htmlEncode(submenu[j].title) + "</li>";
+			}
+			html += "</ul>";
+		}
+		html += "</li>";
+	}
+	html += "</ul></div>";
+
+	var container = $('#popupmenuholder');
+	if (container.length == 0) {
+		$("<div id='popupmenuholder' style='position:relative;'></div>").insertAfter(table);
+		container = $('#popupmenuholder');
+	}
+
+	$(html).appendTo(container);
+}
+
+function makeImageMap(table, skipFirstRow, parameters) {
+	var isFirstRow = skipFirstRow;
+	var isImage = true;
+	var areas = [];
+	var image = null;
+	var mapName = 'map' + nextMapId;
+	nextMapId++;
+
+	table.find("> tbody > tr").each(function() {
+		var row = $(this);
+		if (isFirstRow) {
+			isFirstRow = false;
+		} else if (isImage) {
+			isImage = false;
+		    image = row.find('img').first();
+			image.attr('usemap', '#' + mapName);
+		} else {
+			var tds = row.find('td');
+			if (tds.length == 3) {
+				var shape = trim($(tds[1]).text()).toLowerCase();
+				if (shape == 'rectangle') {
+					 shape = 'rect';
+				}
+				var coords = trim($(tds[2]).text());
+				var alt = trim($(tds[0]).text());
+				var link = null;
+				var linkTarget = null;
+				var anchor = $(tds[0]).find('a');
+				if (anchor.length > 0) {
+					link = anchor.attr('href') != undefined ? anchor.attr('href') : null;
+					linkTarget = anchor.attr('target') != undefined ? anchor.attr('target') : null;
+				}
+				areas.push({ shape: shape, coords: coords, link: link, target: linkTarget });
+			}
+		}
+	});
+
+	table.hide();
+
+	html = "<map name='" + mapName + "'>";
+	for (var i = 0 ; i < areas.length ; i ++) {
+		var area = areas[i];
+		html += "<area shape='" + area.shape + "' coords='" + area.coords + "' href='" + htmlEncode(area.link) + "'";
+		if (area.linkTarget != null) {
+			html += " target='" + area.linkTarget + "'";
+		}
+		html += "/>";
+	}
+	html += "</map>";
+
+	$(html).insertAfter(table);
+	$(image).insertAfter(table);
+}
+
+// utilities
+
+function extractParameters(raw) {
+	var parameters = {};
+	var nest = 0;
+	var data = "";
+	for (var i = 0; i < raw.length; i++) {
+		var ch = raw.charAt(i);
+		if (ch == '[') {
+			nest ++;
+		} else if (ch == ']') {
+			nest --;
+			var pair = data.split("=");
+			if (pair.length == 2) {
+				parameters[pair[0].toLowerCase().trim()] = pair[1].trim();
+			}
+			data = "";
+		} else {
+			if (nest == 1) {
+				data += ch;
+			}
+		}
+	}
+	return parameters;
+}
+
+function removeParameters(raw) {
+	var nest = 0;
+	var output = "";
+	for (var i = 0; i < raw.length; i++) {
+		var ch = raw.charAt(i);
+		if (ch == '[') {
+			nest ++;
+		} else if (ch == ']') {
+			nest --;
+		} else {
+			if (nest == 0) {
+				output += ch;
+			}
+		}
+	}
+	return output.trim();
+}
+
+function scrollTo(target) {
+	var container = $('#s4-workspace');
+	container.animate({
+	    scrollTop: target.offset().top - container.offset().top
+	}, 200);
+}
+
+function htmlEncode(value) {
+	return $('<div/>').text(value).html();
+}
+
+function trim(s) {
+	s = s.replace(/\u200B/g,''); // remove zero width space characters!
+	return s.trim();
+}
+
+// start parsing and conversion here!
+
+if (!inDesignMode) {
+	$("table").each(function() {
+		var row;
+		var skipFirstRow;
+		if ($(this).find("> tbody > tr > th").length > 0) {
+			row = $(this).find("> tbody > tr > th").first();
+			skipFirstRow = false;
+		} else {
+			row = $(this).find("> tbody > tr > td").first();
+			skipFirstRow = true;
+		}
+		var parameters = extractParameters(trim(row.text()));
+		var table = row.parent().parent().parent();
+		var rowText = trim(row.text());
+		if (rowText.indexOf("[Accordion]") != -1) {
+			makeAccordion(table, skipFirstRow, parameters);
+			hasAccordions = true;
+		} else if (rowText.indexOf("[Tabulator]") != -1) {
+			makeTabulator(table, skipFirstRow, parameters);
+			hasTabulators = true;
+		} else if (rowText.indexOf("[Carousel]") != -1) {
+			makeCarousel(table, skipFirstRow, parameters);
+		} else if (rowText.indexOf("[Popup]") != -1) {
+			makePopup(table, skipFirstRow, parameters);
+			hasPopups = true;
+		} else if (rowText.indexOf("[Float]") != -1) {
+			makeFloat(table, skipFirstRow, parameters);
+		} else if (rowText.indexOf("[PopupMenu]") != -1) {
+			makePopupMenu(table, skipFirstRow, parameters);
+			hasPopupMenus = true;
+		} else if (rowText.indexOf("ImageMap") != -1) {
+			makeImageMap(table, skipFirstRow, parameters);
+		}
+	});
+}
+//-->
+</script>
+
+<style type="text/css">
+
+/* accordion style */
+
+.accordion {
+    background-color: #012E58;
+    color: #fff;
+    cursor: pointer;
+    padding: 15px;
+    /*width: 100%;*/
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.4s;
+}
+
+.active-accordion, .accordion:hover {
+    background-color: #4C7BA5;
+}
+
+.accordion:after {
+    content: '\002B';
+    color: #fff;
+    font-weight: bold;
+    font-size: 15px;
+    float: right;
+    margin-left: 5px;
+}
+
+.active-accordion:after {
+    content: "\2212";
+}
+
+.panel {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    margin-bottom: 0;
+}
+
+/* popup */
+
+.popup {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 999; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.popup-content {
+    position: relative;
+    background-color: #fff;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+.popup-close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: -3px;
+}
+
+.popup-close:hover,
+.popup-close:focus {
+    color: #4C7BA5;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.popup-header {
+    padding: 10px 16px;
+    background-color: #012E58;
+    color: white;
+    font-size: 20px;
+    min-height: 24px;
+}
+
+.popup-body {padding: 2px 16px;}
+
+/* float */
+
+.float {
+	position:fixed;
+	bottom:90px;
+	right:40px;
+	background-color: #fff;
+	box-shadow: 2px 2px 3px #999;
+	z-index: 999;
+}
+
+/* tabulator */
+
+.tab-header {
+    background-color: #012E58;
+    color: #fff;
+    width: 100%;
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.tab-button {
+    float:left;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 16px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.tab-button.active,
+.tab-button:hover {
+    background-color: #4C7BA5;
+}
+
+.tab-body {
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+
+/* popup menu */
+
+.popupmenu {
+	position: absolute;
+	z-index: 999;
+}
+.popupmenu ul {
+	list-style: none;
+	margin: 2px;
+	border-radius: 15px;
+    	border: 2px solid #73AD21;
+    	padding: 3px;
+    	background-color: #fff;
+    	opacity: 0.95;
+}
+
+.popupmenu li {
+	border-radius: 15px;
+	position: relative;
+	border: #solid #eee 1px;
+	color: #012E58;
+	font-weight: bold;
+	font-size: 16px;
+	cursor: pointer;
+	padding: 5px 10px;
+	white-space: nowrap;
+}
+
+.popupmenu li.active {
+	background-color: #012E58;
+	color: #fff;
+}
+
+.popupmenu > ul > li > ul {
+	position: absolute;
+	display: none;
+	margin-top: -3px;
+}
+
+
+</style>
+
+<script type="text/javascript">
+<!--
+
+function toggleAccordion(button) {
+    button.toggleClass("active-accordion");
+    var panel = button.next();
+    if (panel.attr("style")) {
+	panel.removeAttr("style");
+    } else {
+	panel.css("max-height", panel.prop("scrollHeight") + "px");
+    }
+}
+
+function openTab(button, tabulator, tab) {
+	$('#' + tabulator + ' .tab-button').removeClass('active');
+	$(button).addClass('active');
+	$('#' + tabulator + ' .tab-body').hide();
+	$('#' + tab).show();
+}
+
+if (!inDesignMode) {
+	if (hasAccordions) {
+		$(".accordion").each(function() {
+		 var button = $(this);
+		 button.click(function() {
+		    toggleAccordion($(this));
+		 });
+		});
+	}
+
+	if (hasPopups) {
+
+		for (var i = 0 ; i < popupIds.length ; i++) {
+			var id = "#" + popupIds[i];
+			$("a[href='" + id + "']").each(function() {
+				var popup = $(id);
+				$(this).click(function() {
+					popup.css('display', 'block');
+				});
+			});
+		}
+
+		$(".popup-close").each(function() {
+			var button = $(this);
+			button.click(function() {
+				var popup = button.parent().parent().parent();
+				popup.css('display', 'none');
+			});
+		});
+	}
+
+	if (hasPopupMenus) {
+		var handler = function() {
+			var trigger = $(this);
+			trigger.mouseover(function(event) {
+				var target = $(event.target);
+				var name = $(this).attr('href').substring(1);
+				var menu = $('#popupmenu-' + name);
+				var holder = $('#popupmenuholder');
+				var workspace = $('#s4-workspace');
+				var shapeX = 0;
+				var shapeY = 0;
+				if (target.prop('tagName').toLowerCase() == 'area') {
+					if (target.attr('shape') == 'rect') {
+						var coords = target.attr('coords').split(',');
+						shapeX = parseInt(coords[2]);
+						shapeY = parseInt(coords[1]);
+					} else if (target.attr('shape') == 'circle') {
+						var coords = target.attr('coords').split(',');
+						shapeX = parseInt(coords[0]) + parseInt(coords[2]);
+						shapeY = parseInt(coords[1]) - parseInt(coords[2]);
+					}
+					// use the associated image as reference instead
+					var mapName = target.parent().attr('name');
+					target = $("img[usemap='#" + mapName + "']");
+				}
+				var	x = (target.offset().left + trigger.outerWidth() + parseInt(menu.attr("offsetx")) - holder.offset().left + shapeX) + "px";
+				var	y = (target.offset().top + parseInt(menu.attr("offsety")) - holder.offset().top + shapeY) + "px";
+				menu.css({top: y, left: x, position:'absolute'});
+				$('.popupmenu').hide();
+				menu.fadeIn(500);
+			});
+		};
+
+		for (var i = 0 ; i < popupMenus.length ; i++) {
+			var  menu = popupMenus[i];
+			if (menu.name != undefined) {
+				$("a[href='#" + menu.name + "']").each(handler);
+				$("area[href='#" + menu.name + "']").each(handler);
+			}
+		}
+		$('.popupmenu > ul > li').each(function() {
+			var li = $(this);
+			var ul = $(this).find("ul");
+			li.mouseover(function() {
+				var li = $(this);
+				$('.popupmenu > ul > li.active').removeClass('active');
+				li.addClass('active');
+				var x = li.outerWidth();
+				var y = 0;
+				var ul = li.find("ul");
+				if (ul.length  == 0 || ul.css('display') == 'none') {
+					$('.popupmenu > ul > li > ul').hide();
+					if (ul.length > 0) {
+						ul.css({top: y, left: x, position:'absolute'});
+						ul.fadeIn(500);
+					}
+				}
+			});
+			li.click(function(event) {
+				var li = $(event.target);
+				if (li.attr('link') != undefined) {
+					var link = li.attr('link');
+					var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
+					if (target == 'self') {
+						location = link;
+					} else {
+						window.open(link, target);
+					}
+				} else {
+					event.stopPropagation();
+				}
+			});
+		});
+		$('.popupmenu > ul > li > ul > li').each(function() {
+			var li = $(this);
+			li.mouseover(function() {
+				var li = $(this);
+				$('.popupmenu > ul > li > ul > li.active').removeClass('active');
+				li.addClass('active');
+			});
+			li.click(function(event) {
+				var li = $(event.target);
+				if (li.attr('link') != undefined) {
+					var link = li.attr('link');
+					var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
+					if (target == 'self') {
+						location = link;
+					} else {
+						window.open(link, target);
+					}
+				} else {
+					event.stopPropagation();
+				}
+			});
+		});
+		$(document).click(function() {
+			$('.popupmenu').fadeOut(500, function(){
+				$('.popupmenu li.active').removeClass('active');
+				$('.popupmenu > ul > li > ul').hide();
+			});
+		});
+	}
+
+	// do expansion
+	$(function() {
+		var hash = window.location.hash.substr(1);
+		if (autoExpands[hash] != undefined) {
+			autoExpands[hash]();
+		}
+	});
+}
+
+//-->
+</script>
