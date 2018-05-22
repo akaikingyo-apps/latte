@@ -498,14 +498,13 @@ if (!inDesignMode) {
 		} else if (rowText.indexOf("[PopupMenu]") != -1) {
 			makePopupMenu(table, skipFirstRow, parameters);
 			hasPopupMenus = true;
-		} else if (rowText.indexOf("ImageMap") != -1) {
+		} else if (rowText.indexOf("ImageMap]") != -1) {
 			makeImageMap(table, skipFirstRow, parameters);
 		}
 	});
 }
 //-->
 </script>
-
 <style type="text/css">
 
 /* accordion style */
@@ -697,10 +696,8 @@ if (!inDesignMode) {
 
 
 </style>
-
 <script type="text/javascript">
 <!--
-
 function toggleAccordion(button) {
     button.toggleClass("active-accordion");
     var panel = button.next();
@@ -729,7 +726,6 @@ if (!inDesignMode) {
 	}
 
 	if (hasPopups) {
-
 		for (var i = 0 ; i < popupIds.length ; i++) {
 			var id = "#" + popupIds[i];
 			$("a[href='" + id + "']").each(function() {
@@ -789,6 +785,7 @@ if (!inDesignMode) {
 				$("area[href='#" + menu.name + "']").each(handler);
 			}
 		}
+
 		$('.popupmenu > ul > li').each(function() {
 			var li = $(this);
 			var ul = $(this).find("ul");
@@ -822,6 +819,7 @@ if (!inDesignMode) {
 				}
 			});
 		});
+
 		$('.popupmenu > ul > li > ul > li').each(function() {
 			var li = $(this);
 			li.mouseover(function() {
@@ -844,6 +842,7 @@ if (!inDesignMode) {
 				}
 			});
 		});
+
 		$(document).click(function() {
 			$('.popupmenu').fadeOut(500, function(){
 				$('.popupmenu li.active').removeClass('active');
@@ -860,6 +859,5 @@ if (!inDesignMode) {
 		}
 	});
 }
-
 //-->
 </script>
