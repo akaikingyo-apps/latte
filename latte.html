@@ -308,12 +308,6 @@ function makePopupMenu(table, skipFirstRow, parameters) {
 	} else {
 		menu["offsetY"] = 0;
 	}
-	if (parameters.width != undefined) {
-		menu["width"] = parseInt(parameters.width);
-	}
-	if (parameters.height != undefined) {
-		menu["height"] = parseInt(parameters.width);
-	}
 
 	if (menu.name == undefined) {
 		return;
@@ -666,15 +660,18 @@ if (!inDesignMode) {
 	margin: 2px;
 	border-radius: 15px;
     	border: 2px solid #73AD21;
-    	padding: 3px;
     	background-color: #fff;
     	opacity: 0.95;
+    	padding: 0;
+}
+
+.popupmenu li:nth-of-type(odd) {
+	background-color: #eee;
 }
 
 .popupmenu li {
 	border-radius: 15px;
 	position: relative;
-	border: #solid #eee 1px;
 	color: #012E58;
 	font-weight: bold;
 	font-size: 16px;
@@ -691,7 +688,6 @@ if (!inDesignMode) {
 .popupmenu > ul > li > ul {
 	position: absolute;
 	display: none;
-	margin-top: -3px;
 }
 
 
@@ -796,7 +792,7 @@ if (!inDesignMode) {
 				var x = li.outerWidth();
 				var y = 0;
 				var ul = li.find("ul");
-				if (ul.length  == 0 || ul.css('display') == 'none') {
+				if (ul.length == 0 || ul.css('display') == 'none') {
 					$('.popupmenu > ul > li > ul').hide();
 					if (ul.length > 0) {
 						ul.css({top: y, left: x, position:'absolute'});
