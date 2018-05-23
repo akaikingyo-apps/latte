@@ -189,6 +189,18 @@
 	display: none;
 }
 
+/* tip */
+
+.latte-tip {
+	position: absolute;
+	border-radius: 5px;
+	border: 1px solid #888;
+	background-color: #ffffe0;
+	padding: 5px 10px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	white-space: nowrap;
+}
+
 </style>
 
 <script type="text/javascript">
@@ -206,6 +218,7 @@ var Latte = {
     nextCarouselId: 1,
     nextPopupId: 1,
     nextMapId: 1,
+    nextTipId: 1,
     popupIds: [],
     popupMenus: [],
     autoExpands: {},
@@ -867,6 +880,30 @@ var Latte = {
                 });
             });
         }
+
+		$("a[href='#tip']").each(function() {
+			var anchor = $(this);
+			if (anchor.attr('title') != undefined) {
+				var id = 'latte-tip' + Latte.nextTipId ++;
+				var title = anchor.attr('title');
+				anchor.attr('latte-title', title);
+				anchor.attr('latte-id', id);
+				anchor.removeAttr('title');
+				var html = "<span style='position:relative'><div id='" + id + "' class='latte-tip' style='display:none'>" + title + "<div></span>";
+				$(html).insertAfter(anchor);
+				anchor.mouseover(function(event) {
+					var anchor = $(event.target)
+					var id = anchor.attr('latte-id');
+					var tip = $('#' + id);
+					tip.css({ top: anchor.outerHeight() + 10, left: -anchor.outerWidth()});
+					tip.fadeIn(200);
+				});
+				anchor.mouseout(function(event) {
+					var id = $(event.target).attr('latte-id');
+					$('#' + id).fadeOut(200);
+				});
+			}
+		});
 
         // do expansion
         $(function() {
