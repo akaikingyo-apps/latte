@@ -7,7 +7,7 @@
     color: #fff;
     cursor: pointer;
     padding: 15px;
-    /*width: 100%;*/
+    margin-bottom: 1px;
     border: none;
     text-align: left;
     outline: none;
@@ -215,19 +215,15 @@ var Latte = {
     makeAccordion: function(table, skipFirstRow, parameters) {
         var titles = [];
         var bodies = [];
-        var isFirstRow = skipFirstRow;
         var isTitle = true;
-        table.find("> tbody > tr > td").each(function() {
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else {
-                if (isTitle) {
-                    titles.push($(this).text());
-                } else {
-                    bodies.push($(this).html());
-                }
-                isTitle = !isTitle;
-            }
+
+        this.forEachTableRowData(table, skipFirstRow, function(td) {
+       		if (isTitle) {
+				titles.push(td.text());
+			} else {
+				bodies.push(td.html());
+			}
+			isTitle = !isTitle;
         });
 
         table.hide();
@@ -258,20 +254,16 @@ var Latte = {
     makeTabulator: function(table, skipFirstRow, parameters) {
         var titles = [];
         var bodies = [];
-        var isFirstRow = skipFirstRow;
         var isTitle = true;
         var tabWidth = parameters.headerwidth != undefined ? parseInt(parameters.headerwidth) : -1;
-        table.find("> tbody > tr > td").each(function() {
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else {
-                if (isTitle) {
-                    titles.push($(this).text());
-                } else {
-                    bodies.push($(this).html());
-                }
-                isTitle = !isTitle;
-            }
+
+        this.forEachTableRowData(table, skipFirstRow, function(td) {
+			if (isTitle) {
+				titles.push(td.text());
+			} else {
+				bodies.push(td.html());
+			}
+			isTitle = !isTitle;
         });
 
         table.hide();
@@ -322,13 +314,9 @@ var Latte = {
 
     makeCarousel: function(table, skipFirstRow, parameters) {
         var bodies = [];
-        var isFirstRow = skipFirstRow;
-        table.find("> tbody > tr > td").each(function() {
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else {
-                bodies.push($(this).html());
-            }
+
+        this.forEachTableRowData(table, skipFirstRow, function(td) {
+			bodies.push(td.html());
         });
 
         table.hide();
@@ -377,18 +365,14 @@ var Latte = {
         this.popupIds.push(popupId);
         var title = null;
         var contents = [];
-        var isFirstRow = skipFirstRow;
         var isTitle = true;
-        table.find("> tbody > tr > td").each(function() {
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else {
-                if (isTitle) {
-                    title = $(this).text();
-                    isTitle = false;
-                }
-                contents.push($(this).html());
-            }
+
+		this.forEachTableRowData(table, skipFirstRow, function(td) {
+			if (isTitle) {
+				title = td.text();
+				isTitle = false;
+			}
+			contents.push(td.html());
         });
 
         table.hide();
@@ -417,14 +401,10 @@ var Latte = {
     },
 
     makeFloat: function(table, skipFirstRow, parameters) {
-        var isFirstRow = skipFirstRow;
         var content = "";
-        table.find("> tbody > tr > td").each(function() {
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else {
-                content = $(this).html();
-            }
+
+		this.forEachTableRowData(table, skipFirstRow, function(td) {
+			content = td.html();
         });
 
         table.hide();
@@ -443,56 +423,51 @@ var Latte = {
     },
 
     makePopupMenu: function(table, skipFirstRow, parameters) {
-        var isFirstRow = skipFirstRow;
         var menu = {
             menu: []
         };
         var current = null;
 
-        table.find("> tbody > tr").each(function() {
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else {
-                var level1Text = "";
-                var level1Link = null;
-                var level1LinkTarget = null;
-                var tds = $(this).find("td");
-                if (tds.length > 0) {
-                    level1Text = Latte.trim($(tds[0]).text());
-                    var anchor = $(tds[0]).find("a");
-                    if (anchor.length > 0) {
-                        level1Link = $(anchor[0]).attr('href');
-                        level1LinkTarget = $(anchor[0]).attr('target');
-                    }
-                }
-                var level2Text = "";
-                var level2Link = null;
-                var level2LinkTarget = null;
-                if (tds.length > 1) {
-                    level2Text = Latte.trim($(tds[1]).text());
-                    var anchor = $(tds[1]).find("a");
-                    if (anchor.length > 0) {
-                        level2Link = $(anchor[0]).attr('href');
-                        level2LinkTarget = $(anchor[0]).attr('target');
-                    }
-                }
-                if (level1Text != "") {
-                    current = {
-                        title: level1Text,
-                        link: level1Link,
-                        linkTarget: level1LinkTarget,
-                        submenu: []
-                    };
-                    menu.menu.push(current);
-                }
-                if (current != null && level2Text != "") {
-                    current.submenu.push({
-                        title: level2Text,
-                        link: level2Link,
-                        linkTarget: level2LinkTarget
-                    });
-                }
-            }
+		this.forEachTableRow(table, skipFirstRow, function(tr) {
+			var level1Text = "";
+			var level1Link = null;
+			var level1LinkTarget = null;
+			var tds = tr.find("td");
+			if (tds.length > 0) {
+				level1Text = Latte.trim($(tds[0]).text());
+				var anchor = $(tds[0]).find("a");
+				if (anchor.length > 0) {
+					level1Link = $(anchor[0]).attr('href');
+					level1LinkTarget = $(anchor[0]).attr('target');
+				}
+			}
+			var level2Text = "";
+			var level2Link = null;
+			var level2LinkTarget = null;
+			if (tds.length > 1) {
+				level2Text = Latte.trim($(tds[1]).text());
+				var anchor = $(tds[1]).find("a");
+				if (anchor.length > 0) {
+					level2Link = $(anchor[0]).attr('href');
+					level2LinkTarget = $(anchor[0]).attr('target');
+				}
+			}
+			if (level1Text != "") {
+				current = {
+					title: level1Text,
+					link: level1Link,
+					linkTarget: level1LinkTarget,
+					submenu: []
+				};
+				menu.menu.push(current);
+			}
+			if (current != null && level2Text != "") {
+				current.submenu.push({
+					title: level2Text,
+					link: level2Link,
+					linkTarget: level2LinkTarget
+				});
+			}
         });
 
         table.hide();
@@ -549,18 +524,14 @@ var Latte = {
     },
 
     makeImageMap: function(table, skipFirstRow, parameters) {
-        var isFirstRow = skipFirstRow;
         var isImage = true;
         var areas = [];
         var image = null;
-        var mapName = 'map' + this.nextMapId;
+        var mapName = 'latte-map' + this.nextMapId;
         this.nextMapId++;
 
-        table.find("> tbody > tr").each(function() {
-            var row = $(this);
-            if (isFirstRow) {
-                isFirstRow = false;
-            } else if (isImage) {
+        this.forEachTableRow(table, skipFirstRow, function(row) {
+            if (isImage) {
                 isImage = false;
                 image = row.find('img').first();
                 image.attr('usemap', '#' + mapName);
@@ -608,6 +579,33 @@ var Latte = {
     },
 
     // utilities
+
+    forEachTableRow: function(table, skipFirstRow, handler) {
+		if (table.find("> tbody").length > 0) {
+			this.forEach(table, "> tbody > tr", skipFirstRow, handler);
+		} else {
+			this.forEach(table, "> tr", skipFirstRow, handler);
+		}
+    },
+
+    forEachTableRowData: function(table, skipFirstRow, handler) {
+		if (table.find("> tbody").length > 0) {
+			this.forEach(table, "> tbody > tr > td", skipFirstRow, handler);
+		} else {
+			this.forEach(table, "> tr > td", skipFirstRow, handler);
+		}
+    },
+
+    forEach: function(target, query, skipFirstRow, handler) {
+		var isFirstRow = skipFirstRow;
+		target.find(query).each(function() {
+			if (isFirstRow) {
+				isFirstRow = false;
+			} else {
+				handler($(this));
+			}
+		});
+    },
 
     extractParameters: function(raw) {
         var parameters = {};
