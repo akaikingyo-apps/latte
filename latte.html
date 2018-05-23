@@ -1,524 +1,8 @@
-<script type="text/javascript">
-<!--
-
-/* project latte */
-
-var inDesignMode = document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1";
-var hasAccordions = false;
-var hasTabulators = false;
-var hasPopups = false;
-var hasPopupMenus = false;
-var nextTabId = 1;
-var nextCarouselId = 1;
-var nextPopupId = 1;
-var nextMapId = 1;
-var popupIds = [];
-var popupMenus = [];
-var autoExpands = {};
-
-// the core functions
-
-function makeAccordion(table, skipFirstRow, parameters) {
-	var titles = [];
-	var bodies = [];
-	var isFirstRow = skipFirstRow;
-	var isTitle = true;
-	table.find("> tbody > tr > td").each(function() {
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else {
-			if (isTitle) {
-				titles.push($(this).text());
-			} else {
-				bodies.push($(this).html());
-			}
-			isTitle = !isTitle;
-		}
-	});
-
-	table.hide();
-
-	var html = "";
-
-	for (var i = 0 ; i < titles.length ; i ++) {
-		var p = extractParameters(titles[i]);
-		var title = removeParameters(titles[i]);
-		if (p.name != undefined) {
-			html += "<a name='" + p.name + "'></a>";
-			html += "<div class='accordion' id='accordion-" + p.name + "'>" + title + "</div>";
-			var accordionId = "#accordion-" + p.name;
-			autoExpands[p.name] = new Function("var button=$('" + accordionId + "'); toggleAccordion(button); scrollTo(button);");
-		} else {
-			html += "<div class='accordion'>" + title + "</div>";
-		}
-		if (i < bodies.length) {
-			html += "<div class='panel'>" + bodies[i] + "</div>";
-		} else {
-			html += "<div class='panel'></div>";
-		}
-	}
-
-	$(html).insertAfter(table);
-}
-
-function makeTabulator(table, skipFirstRow, parameters) {
-	var titles = [];
-	var bodies = [];
-	var isFirstRow = skipFirstRow;
-	var isTitle = true;
-	var tabWidth = parameters.headerwidth != undefined ? parseInt(parameters.headerwidth) : -1;
-	table.find("> tbody > tr > td").each(function() {
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else {
-			if (isTitle) {
-				titles.push($(this).text());
-			} else {
-				bodies.push($(this).html());
-			}
-			isTitle = !isTitle;
-		}
-	});
-
-	table.hide();
-
-	var html = "<div id='tabulator" + nextTabId + "'><div class='tab-header'>";
-	for (var i = 0 ; i < titles.length ; i ++) {
-		var p = extractParameters(titles[i]);
-		var title = removeParameters(titles[i]);
-		var id = "";
-		var css = "";
-		if (i == 0) {
-			css = " active";
-		}
-
-		if (p.name != undefined) {
-			html += "<a name='" + p.name + "'></a>";
-			id = "id='tab-" + p.name + "'";
-			var tabId = "#tab-" + p.name;
-			autoExpands[p.name] = new Function("var button=$('" + tabId + "'); openTab(button, 'tabulator" + nextTabId + "', 'tab" + (nextTabId + i) + "'); scrollTo(button);");
-		}
-
-		var width = tabWidth;
-		var style = "";
-		if (p.width != undefined) {
-			width = parseInt(p.width);
-		}
-		if (width != -1) {
-			style = " style='width:" + width + "px'";
-		}
-
-		html += "<div " + id + "class='tab-button" + css + "'" + style + " onclick=\"openTab(this, 'tabulator" + nextTabId + "', 'tab" + (nextTabId + i) + "')\">" + title + "</div>";
-	}
-	html += "</div>";
-
-	for (var i = 0 ; i < bodies.length ; i ++) {
-		var style = "";
-		if (i != 0) {
-			style = "display:none";
-		}
-		html += "<div id='tab" + (nextTabId + i) + "' class='tab-body' style='" + style + "'>" + bodies[i] + "</div>";
-	}
-	html += "</div>";
-
-	nextTabId += titles.length;
-
-	$(html).insertAfter(table);
-}
-
-function makeCarousel(table, skipFirstRow, parameters) {
-	var bodies = [];
-	var isFirstRow = skipFirstRow;
-	table.find("> tbody > tr > td").each(function() {
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else {
-			bodies.push($(this).html());
-		}
-	});
-
-	table.hide();
-	var carouselId = "carousel" + nextCarouselId;
-
-	var html = "<div id='" + carouselId + "' class='carousel slide' data-ride='carousel'>";
-	html += "<ol class='carousel-indicators'>";
-	for (var i = 0 ; i < bodies.length ; i ++) {
-		var style = "";
-		if (i == 0) {
-			style = "active";
-		}
-		html += "<li data-target='#" + carouselId + "' data-slide-to='" + i + "' class='" + style + "'></li>";
-	}
-	html += "</ol>";;
-	html += "<div class='carousel-inner'>";
-
-	for (var i = 0 ; i < bodies.length ; i ++) {
-		var style = "";
-		if (i == 0) {
-			style = " active";
-		}
-		html += "<div class='item" + style + "'>" + bodies[i] + "</div>";
-	}
-	html += "</div>";
-
-	html += "<a class='left carousel-control' href='#" + carouselId + "' data-slide='prev'>";
-	html += "<span class='glyphicon glyphicon-chevron-left'></span>";
-	html += "<span class='sr-only'>Previous</span>";
-	html += "</a>";
-
-	html += "<a class='right carousel-control' href='#" + carouselId + "' data-slide='next'>";
-	html += "<span class='glyphicon glyphicon-chevron-right'></span>";
-	html += "<span class='sr-only'>Next</span>";
-	html += "</a>";
-
-	html += "</div>";
-
-	nextCarouselId ++;
-
-	$(html).insertAfter(table);
-}
-
-function makePopup(table, skipFirstRow, parameters) {
-	var popupId = parameters.name != undefined ? parameters.name : 'popup' + nextPopupId ++;
-	popupIds.push(popupId);
-	var title = null;
-	var contents = [];
-	var isFirstRow = skipFirstRow;
-	var isTitle = true;
-	table.find("> tbody > tr > td").each(function() {
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else {
-			if (isTitle) {
-				title = $(this).text();
-				isTitle = false;
-			}
-			contents.push($(this).html());
-		}
-	});
-
-	table.hide();
-
-	var content;
-	if (contents.length > 1) {
-		content = contents[1];
-	} else {
-		title = "";
-		content = contents[0];
-	}
-
-
-	var html = "<div id='" + popupId + "' class='popup'>";
-	html += "<div class='popup-content'>";
-	html += "<div class='popup-header'>";
-	html += "<span class='popup-close'>&times;</span>";
-	html += title;
-	html += "</div>";
-	html += "<div class='popup-body'>";
-	html += content;
-	html += "</div>";
-	html += "</div>";
-	html += "</div>";
-
-	$(html).insertAfter(table);
-}
-
-function makeFloat(table, skipFirstRow, parameters) {
-	var isFirstRow = skipFirstRow;
-	var content = "";
-	table.find("> tbody > tr > td").each(function() {
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else {
-
-			content = $(this).html();
-		}
-	});
-
-	table.hide();
-
-	var style = "";
-	if (parameters.offset != undefined) {
-		try {
-			style = " style='bottom:" + (parseInt(parameters.offset) + 90) + "px'";
-		} catch (e) {
-		}
-	}
-	var html = "<div class='float'" + style + ">";
-	html += content;
-	html += "</div>";
-
-	$(html).insertAfter(table);
-}
-
-function makePopupMenu(table, skipFirstRow, parameters) {
-	var isFirstRow = skipFirstRow;
-	var menu = {menu: []};
-	var current = null;
-
-	table.find("> tbody > tr").each(function() {
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else {
-			var level1Text = "";
-			var level1Link = null;
-			var level1LinkTarget = null;
-			var tds = $(this).find("td");
-			if (tds.length > 0) {
-				level1Text = trim($(tds[0]).text());
-				var anchor = $(tds[0]).find("a");
-				if (anchor.length > 0) {
-					level1Link = $(anchor[0]).attr('href');
-					level1LinkTarget = $(anchor[0]).attr('target');
-				}
-			}
-			var level2Text = "";
-			var level2Link = null;
-			var level2LinkTarget = null;
-			if (tds.length > 1) {
-				level2Text = trim($(tds[1]).text());
-				var anchor = $(tds[1]).find("a");
-				if (anchor.length > 0) {
-					level2Link = $(anchor[0]).attr('href');
-					level2LinkTarget = $(anchor[0]).attr('target');
-				}
-			}
-			if (level1Text != "") {
-				current = { title: level1Text, link: level1Link, linkTarget: level1LinkTarget, submenu: [] };
-				menu.menu.push(current);
-			}
-			if (current != null && level2Text != "") {
-				current.submenu.push({ title: level2Text, link: level2Link, linkTarget: level2LinkTarget });
-			}
-		}
-	});
-
-	table.hide();
-
-	if (parameters.name != undefined) {
-		menu["name"] = parameters.name;
-	}
-	if (parameters.offsetx != undefined) {
-		menu["offsetX"] = parseInt(parameters.offsetx);
-	} else {
-		menu["offsetX"] = 0;
-	}
-	if (parameters.offsety != undefined) {
-		menu["offsetY"] = parseInt(parameters.offsety);
-	} else {
-		menu["offsetY"] = 0;
-	}
-
-	if (menu.name == undefined) {
-		return;
-	}
-
-	popupMenus.push(menu);
-
-	var html = "<div id='popupmenu-" + menu.name + "' class='popupmenu' style='display:none' offsetX='" + menu.offsetX + "' offsetY='" + menu.offsetY + "'><ul>";
-	for (var i = 0 ; i < menu.menu.length ; i++) {
-		html += "<li>" + menu.menu[i].title;
-		var submenu = menu.menu[i].submenu;
-		if (submenu.length > 0) {
-			html += "<ul>";
-			for (var j = 0 ; j < submenu.length ; j++) {
-				html += "<li";
-				if (submenu[j].link != null) {
-					html += " link='" + htmlEncode(submenu[j].link) + "'";
-					if (submenu[j].linkTarget != null) {
-						html += " linktarget='" + htmlEncode(submenu[j].linkTarget) + "'";
-					}
-				}
-				html += ">" + htmlEncode(submenu[j].title) + "</li>";
-			}
-			html += "</ul>";
-		}
-		html += "</li>";
-	}
-	html += "</ul></div>";
-
-	var container = $('#popupmenuholder');
-	if (container.length == 0) {
-		$("<div id='popupmenuholder' style='position:relative;'></div>").insertAfter(table);
-		container = $('#popupmenuholder');
-	}
-
-	$(html).appendTo(container);
-}
-
-function makeImageMap(table, skipFirstRow, parameters) {
-	var isFirstRow = skipFirstRow;
-	var isImage = true;
-	var areas = [];
-	var image = null;
-	var mapName = 'map' + nextMapId;
-	nextMapId++;
-
-	table.find("> tbody > tr").each(function() {
-		var row = $(this);
-		if (isFirstRow) {
-			isFirstRow = false;
-		} else if (isImage) {
-			isImage = false;
-		    image = row.find('img').first();
-			image.attr('usemap', '#' + mapName);
-		} else {
-			var tds = row.find('td');
-			if (tds.length == 3) {
-				var shape = trim($(tds[1]).text()).toLowerCase();
-				if (shape == 'rectangle') {
-					 shape = 'rect';
-				}
-				var coords = trim($(tds[2]).text());
-				var alt = trim($(tds[0]).text());
-				var link = null;
-				var linkTarget = null;
-				var anchor = $(tds[0]).find('a');
-				if (anchor.length > 0) {
-					link = anchor.attr('href') != undefined ? anchor.attr('href') : null;
-					linkTarget = anchor.attr('target') != undefined ? anchor.attr('target') : null;
-				}
-				areas.push({ shape: shape, coords: coords, link: link, target: linkTarget });
-			}
-		}
-	});
-
-	table.hide();
-
-	html = "<map name='" + mapName + "'>";
-	for (var i = 0 ; i < areas.length ; i ++) {
-		var area = areas[i];
-		html += "<area shape='" + area.shape + "' coords='" + area.coords + "' href='" + htmlEncode(area.link) + "'";
-		if (area.linkTarget != null) {
-			html += " target='" + area.linkTarget + "'";
-		}
-		html += "/>";
-	}
-	html += "</map>";
-
-	$(html).insertAfter(table);
-	$(image).insertAfter(table);
-}
-
-// utilities
-
-function extractParameters(raw) {
-	var parameters = {};
-	var nest = 0;
-	var data = "";
-	for (var i = 0; i < raw.length; i++) {
-		var ch = raw.charAt(i);
-		if (ch == '[') {
-			nest ++;
-		} else if (ch == ']') {
-			nest --;
-			var pair = data.split("=");
-			if (pair.length == 2) {
-				parameters[pair[0].toLowerCase().trim()] = pair[1].trim();
-			}
-			data = "";
-		} else {
-			if (nest == 1) {
-				data += ch;
-			}
-		}
-	}
-	return parameters;
-}
-
-function removeParameters(raw) {
-	var nest = 0;
-	var output = "";
-	for (var i = 0; i < raw.length; i++) {
-		var ch = raw.charAt(i);
-		if (ch == '[') {
-			nest ++;
-		} else if (ch == ']') {
-			nest --;
-		} else {
-			if (nest == 0) {
-				output += ch;
-			}
-		}
-	}
-	return output.trim();
-}
-
-function scrollTo(target) {
-	var container = $('#s4-workspace');
-	container.animate({
-	    scrollTop: target.offset().top - container.offset().top
-	}, 200);
-}
-
-function htmlEncode(value) {
-	return $('<div/>').text(value).html();
-}
-
-function trim(s) {
-	s = s.replace(/\u200B/g,''); // remove zero width space characters!
-	return s.trim();
-}
-
-// start parsing and conversion here!
-
-if (!inDesignMode) {
-	$("table").each(function() {
-		var row;
-		var skipFirstRow;
-		var ths = $(this).find("> tbody > tr > th");
-		var tds = $(this).find("> tbody > tr > td");
-		if (ths.length > 0) {
-			row = ths.first();
-			skipFirstRow = false;
-		} else if (tds.length > 0) {
-			row = tds.first();
-			skipFirstRow = true;
-		} else {
-			ths = $(this).find("> tr > th");
-			tds = $(this).find("> tr > td");
-			if (ths.length > 0) {
-				row = ths.first();
-				skipFirstRow = false;
-			} else if (tds.length > 0) {
-				row = tds.first();
-				skipFirstRow = true;
-			} else {
-				// table with no row!
-				return;
-			}
-		}
-		var parameters = extractParameters(trim(row.text()));
-		var table = row.parent().parent().parent();
-		var rowText = trim(row.text());
-		if (rowText.indexOf("[Accordion]") != -1) {
-			makeAccordion(table, skipFirstRow, parameters);
-			hasAccordions = true;
-		} else if (rowText.indexOf("[Tabulator]") != -1) {
-			makeTabulator(table, skipFirstRow, parameters);
-			hasTabulators = true;
-		} else if (rowText.indexOf("[Carousel]") != -1) {
-			makeCarousel(table, skipFirstRow, parameters);
-		} else if (rowText.indexOf("[Popup]") != -1) {
-			makePopup(table, skipFirstRow, parameters);
-			hasPopups = true;
-		} else if (rowText.indexOf("[Float]") != -1) {
-			makeFloat(table, skipFirstRow, parameters);
-		} else if (rowText.indexOf("[PopupMenu]") != -1) {
-			makePopupMenu(table, skipFirstRow, parameters);
-			hasPopupMenus = true;
-		} else if (rowText.indexOf("ImageMap]") != -1) {
-			makeImageMap(table, skipFirstRow, parameters);
-		}
-	});
-}
-//-->
-</script>
 <style type="text/css">
 
 /* accordion style */
 
-.accordion {
+.latte-accordion {
     background-color: #012E58;
     color: #fff;
     cursor: pointer;
@@ -532,11 +16,11 @@ if (!inDesignMode) {
     transition: 0.4s;
 }
 
-.active-accordion, .accordion:hover {
+.latte-active-accordion, .latte-accordion:hover {
     background-color: #4C7BA5;
 }
 
-.accordion:after {
+.latte-accordion:after {
     content: '\002B';
     color: #fff;
     font-weight: bold;
@@ -545,11 +29,11 @@ if (!inDesignMode) {
     margin-left: 5px;
 }
 
-.active-accordion:after {
+.latte-active-accordion:after {
     content: "\2212";
 }
 
-.panel {
+.latte-panel {
     padding: 0 18px;
     background-color: white;
     max-height: 0;
@@ -560,7 +44,7 @@ if (!inDesignMode) {
 
 /* popup */
 
-.popup {
+.latte-popup {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 999; /* Sit on top */
@@ -574,7 +58,7 @@ if (!inDesignMode) {
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-.popup-content {
+.latte-popup-content {
     position: relative;
     background-color: #fff;
     margin: auto;
@@ -598,7 +82,7 @@ if (!inDesignMode) {
     to {top:0; opacity:1}
 }
 
-.popup-close {
+.latte-popup-close {
     color: white;
     float: right;
     font-size: 28px;
@@ -606,14 +90,14 @@ if (!inDesignMode) {
     margin-top: -3px;
 }
 
-.popup-close:hover,
-.popup-close:focus {
+.latte-popup-close:hover,
+.latte-popup-close:focus {
     color: #4C7BA5;
     text-decoration: none;
     cursor: pointer;
 }
 
-.popup-header {
+.latte-popup-header {
     padding: 10px 16px;
     background-color: #012E58;
     color: white;
@@ -621,11 +105,11 @@ if (!inDesignMode) {
     min-height: 24px;
 }
 
-.popup-body {padding: 2px 16px;}
+.latte-popup-body {padding: 2px 16px;}
 
 /* float */
 
-.float {
+.latte-float {
 	position:fixed;
 	bottom:90px;
 	right:40px;
@@ -636,7 +120,7 @@ if (!inDesignMode) {
 
 /* tabulator */
 
-.tab-header {
+.latte-tab-header {
     background-color: #012E58;
     color: #fff;
     width: 100%;
@@ -645,7 +129,7 @@ if (!inDesignMode) {
     clear: both;
 }
 
-.tab-button {
+.latte-tab-button {
     float:left;
     font-size: 15px;
     font-weight: bold;
@@ -654,23 +138,23 @@ if (!inDesignMode) {
     text-align: center;
 }
 
-.tab-button.active,
-.tab-button:hover {
+.latte-tab-button.active,
+.latte-tab-button:hover {
     background-color: #4C7BA5;
 }
 
-.tab-body {
+.latte-tab-body {
 	padding: 10px;
 	border: 1px solid #ccc;
 }
 
 /* popup menu */
 
-.popupmenu {
+.latte-popupmenu {
 	position: absolute;
 	z-index: 999;
 }
-.popupmenu ul {
+.latte-popupmenu ul {
 	list-style: none;
 	margin: 2px;
 	border-radius: 15px;
@@ -680,11 +164,11 @@ if (!inDesignMode) {
     	padding: 0;
 }
 
-.popupmenu li:nth-of-type(odd) {
+.latte-popupmenu li:nth-of-type(odd) {
 	background-color: #eee;
 }
 
-.popupmenu li {
+.latte-popupmenu li {
 	border-radius: 15px;
 	position: relative;
 	color: #012E58;
@@ -695,180 +179,734 @@ if (!inDesignMode) {
 	white-space: nowrap;
 }
 
-.popupmenu li.active {
+.latte-popupmenu li.active {
 	background-color: #012E58;
 	color: #fff;
 }
 
-.popupmenu > ul > li > ul {
+.latte-popupmenu > ul > li > ul {
 	position: absolute;
 	display: none;
 }
 
-
 </style>
+
 <script type="text/javascript">
 <!--
-function toggleAccordion(button) {
-    button.toggleClass("active-accordion");
-    var panel = button.next();
-    if (panel.attr("style")) {
-	panel.removeAttr("style");
-    } else {
-	panel.css("max-height", panel.prop("scrollHeight") + "px");
+
+/* project latte */
+var Latte = {
+
+    inDesignMode: document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1",
+    hasAccordions: false,
+    hasTabulators: false,
+    hasPopups: false,
+    hasPopupMenus: false,
+    nextTabId: 1,
+    nextCarouselId: 1,
+    nextPopupId: 1,
+    nextMapId: 1,
+    popupIds: [],
+    popupMenus: [],
+    autoExpands: {},
+
+    // the core functions
+
+    makeAccordion: function(table, skipFirstRow, parameters) {
+        var titles = [];
+        var bodies = [];
+        var isFirstRow = skipFirstRow;
+        var isTitle = true;
+        table.find("> tbody > tr > td").each(function() {
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else {
+                if (isTitle) {
+                    titles.push($(this).text());
+                } else {
+                    bodies.push($(this).html());
+                }
+                isTitle = !isTitle;
+            }
+        });
+
+        table.hide();
+
+        var html = "";
+
+        for (var i = 0; i < titles.length; i++) {
+            var p = this.extractParameters(titles[i]);
+            var title = this.removeParameters(titles[i]);
+            if (p.name != undefined) {
+                html += "<a name='" + p.name + "'></a>";
+                html += "<div class='latte-accordion' id='latte-accordion-" + p.name + "'>" + title + "</div>";
+                var accordionId = "#latte-accordion-" + p.name;
+                this.autoExpands[p.name] = new Function("var button=$('" + accordionId + "'); Latte.toggleAccordion(button); Latte.scrollTo(button);");
+            } else {
+                html += "<div class='latte-accordion'>" + title + "</div>";
+            }
+            if (i < bodies.length) {
+                html += "<div class='latte-panel'>" + bodies[i] + "</div>";
+            } else {
+                html += "<div class='latte-panel'></div>";
+            }
+        }
+
+        $(html).insertAfter(table);
+    },
+
+    makeTabulator: function(table, skipFirstRow, parameters) {
+        var titles = [];
+        var bodies = [];
+        var isFirstRow = skipFirstRow;
+        var isTitle = true;
+        var tabWidth = parameters.headerwidth != undefined ? parseInt(parameters.headerwidth) : -1;
+        table.find("> tbody > tr > td").each(function() {
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else {
+                if (isTitle) {
+                    titles.push($(this).text());
+                } else {
+                    bodies.push($(this).html());
+                }
+                isTitle = !isTitle;
+            }
+        });
+
+        table.hide();
+
+        var html = "<div id='latte-tabulator" + this.nextTabId + "'><div class='latte-tab-header'>";
+        for (var i = 0; i < titles.length; i++) {
+            var p = this.extractParameters(titles[i]);
+            var title = this.removeParameters(titles[i]);
+            var id = "";
+            var css = "";
+            if (i == 0) {
+                css = " active";
+            }
+
+            if (p.name != undefined) {
+                html += "<a name='" + p.name + "'></a>";
+                id = "id='latte-tab-" + p.name + "'";
+                var tabId = "#latte-tab-" + p.name;
+                this.autoExpands[p.name] = new Function("var button=$('" + tabId + "'); Latte.openTab(button, 'latte-tabulator" + this.nextTabId + "', 'latte-tab" + (this.nextTabId + i) + "'); Latte.scrollTo(button);");
+            }
+
+            var width = tabWidth;
+            var style = "";
+            if (p.width != undefined) {
+                width = parseInt(p.width);
+            }
+            if (width != -1) {
+                style = " style='width:" + width + "px'";
+            }
+
+            html += "<div " + id + "class='latte-tab-button" + css + "'" + style + " onclick=\"Latte.openTab(this, 'latte-tabulator" + this.nextTabId + "', 'latte-tab" + (this.nextTabId + i) + "')\">" + title + "</div>";
+        }
+        html += "</div>";
+
+        for (var i = 0; i < bodies.length; i++) {
+            var style = "";
+            if (i != 0) {
+                style = "display:none";
+            }
+            html += "<div id='latte-tab" + (this.nextTabId + i) + "' class='latte-tab-body' style='" + style + "'>" + bodies[i] + "</div>";
+        }
+        html += "</div>";
+
+        this.nextTabId += titles.length;
+
+        $(html).insertAfter(table);
+    },
+
+    makeCarousel: function(table, skipFirstRow, parameters) {
+        var bodies = [];
+        var isFirstRow = skipFirstRow;
+        table.find("> tbody > tr > td").each(function() {
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else {
+                bodies.push($(this).html());
+            }
+        });
+
+        table.hide();
+        var carouselId = "latte-carousel" + this.nextCarouselId;
+
+        var html = "<div id='" + carouselId + "' class='carousel slide' data-ride='carousel'>";
+        html += "<ol class='carousel-indicators'>";
+        for (var i = 0; i < bodies.length; i++) {
+            var style = "";
+            if (i == 0) {
+                style = "active";
+            }
+            html += "<li data-target='#" + carouselId + "' data-slide-to='" + i + "' class='" + style + "'></li>";
+        }
+        html += "</ol>";;
+        html += "<div class='carousel-inner'>";
+
+        for (var i = 0; i < bodies.length; i++) {
+            var style = "";
+            if (i == 0) {
+                style = " active";
+            }
+            html += "<div class='item" + style + "'>" + bodies[i] + "</div>";
+        }
+        html += "</div>";
+
+        html += "<a class='left carousel-control' href='#" + carouselId + "' data-slide='prev'>";
+        html += "<span class='glyphicon glyphicon-chevron-left'></span>";
+        html += "<span class='sr-only'>Previous</span>";
+        html += "</a>";
+
+        html += "<a class='right carousel-control' href='#" + carouselId + "' data-slide='next'>";
+        html += "<span class='glyphicon glyphicon-chevron-right'></span>";
+        html += "<span class='sr-only'>Next</span>";
+        html += "</a>";
+
+        html += "</div>";
+
+        this.nextCarouselId++;
+
+        $(html).insertAfter(table);
+    },
+
+    makePopup: function(table, skipFirstRow, parameters) {
+        var popupId = parameters.name != undefined ? parameters.name : 'latte-popup' + this.nextPopupId++;
+        this.popupIds.push(popupId);
+        var title = null;
+        var contents = [];
+        var isFirstRow = skipFirstRow;
+        var isTitle = true;
+        table.find("> tbody > tr > td").each(function() {
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else {
+                if (isTitle) {
+                    title = $(this).text();
+                    isTitle = false;
+                }
+                contents.push($(this).html());
+            }
+        });
+
+        table.hide();
+
+        var content;
+        if (contents.length > 1) {
+            content = contents[1];
+        } else {
+            title = "";
+            content = contents[0];
+        }
+
+        var html = "<div id='" + popupId + "' class='latte-popup'>";
+        html += "<div class='latte-popup-content'>";
+        html += "<div class='latte-popup-header'>";
+        html += "<span class='latte-popup-close'>&times;</span>";
+        html += title;
+        html += "</div>";
+        html += "<div class='latte-popup-body'>";
+        html += content;
+        html += "</div>";
+        html += "</div>";
+        html += "</div>";
+
+        $(html).insertAfter(table);
+    },
+
+    makeFloat: function(table, skipFirstRow, parameters) {
+        var isFirstRow = skipFirstRow;
+        var content = "";
+        table.find("> tbody > tr > td").each(function() {
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else {
+                content = $(this).html();
+            }
+        });
+
+        table.hide();
+
+        var style = "";
+        if (parameters.offset != undefined) {
+            try {
+                style = " style='bottom:" + (parseInt(parameters.offset) + 90) + "px'";
+            } catch (e) {}
+        }
+        var html = "<div class='latte-float'" + style + ">";
+        html += content;
+        html += "</div>";
+
+        $(html).insertAfter(table);
+    },
+
+    makePopupMenu: function(table, skipFirstRow, parameters) {
+        var isFirstRow = skipFirstRow;
+        var menu = {
+            menu: []
+        };
+        var current = null;
+
+        table.find("> tbody > tr").each(function() {
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else {
+                var level1Text = "";
+                var level1Link = null;
+                var level1LinkTarget = null;
+                var tds = $(this).find("td");
+                if (tds.length > 0) {
+                    level1Text = Latte.trim($(tds[0]).text());
+                    var anchor = $(tds[0]).find("a");
+                    if (anchor.length > 0) {
+                        level1Link = $(anchor[0]).attr('href');
+                        level1LinkTarget = $(anchor[0]).attr('target');
+                    }
+                }
+                var level2Text = "";
+                var level2Link = null;
+                var level2LinkTarget = null;
+                if (tds.length > 1) {
+                    level2Text = Latte.trim($(tds[1]).text());
+                    var anchor = $(tds[1]).find("a");
+                    if (anchor.length > 0) {
+                        level2Link = $(anchor[0]).attr('href');
+                        level2LinkTarget = $(anchor[0]).attr('target');
+                    }
+                }
+                if (level1Text != "") {
+                    current = {
+                        title: level1Text,
+                        link: level1Link,
+                        linkTarget: level1LinkTarget,
+                        submenu: []
+                    };
+                    menu.menu.push(current);
+                }
+                if (current != null && level2Text != "") {
+                    current.submenu.push({
+                        title: level2Text,
+                        link: level2Link,
+                        linkTarget: level2LinkTarget
+                    });
+                }
+            }
+        });
+
+        table.hide();
+
+        if (parameters.name != undefined) {
+            menu["name"] = parameters.name;
+        }
+        if (parameters.offsetx != undefined) {
+            menu["offsetX"] = parseInt(parameters.offsetx);
+        } else {
+            menu["offsetX"] = 0;
+        }
+        if (parameters.offsety != undefined) {
+            menu["offsetY"] = parseInt(parameters.offsety);
+        } else {
+            menu["offsetY"] = 0;
+        }
+
+        if (menu.name == undefined) {
+            return;
+        }
+
+        this.popupMenus.push(menu);
+
+        var html = "<div id='latte-popupmenu-" + menu.name + "' class='latte-popupmenu' style='display:none' offsetX='" + menu.offsetX + "' offsetY='" + menu.offsetY + "'><ul>";
+        for (var i = 0; i < menu.menu.length; i++) {
+            html += "<li>" + menu.menu[i].title;
+            var submenu = menu.menu[i].submenu;
+            if (submenu.length > 0) {
+                html += "<ul>";
+                for (var j = 0; j < submenu.length; j++) {
+                    html += "<li";
+                    if (submenu[j].link != null) {
+                        html += " link='" + this.htmlEncode(submenu[j].link) + "'";
+                        if (submenu[j].linkTarget != null) {
+                            html += " linktarget='" + this.htmlEncode(submenu[j].linkTarget) + "'";
+                        }
+                    }
+                    html += ">" + this.htmlEncode(submenu[j].title) + "</li>";
+                }
+                html += "</ul>";
+            }
+            html += "</li>";
+        }
+        html += "</ul></div>";
+
+        var container = $('#popupmenuholder');
+        if (container.length == 0) {
+            $("<div id='latte-popupmenuholder' style='position:relative;'></div>").insertAfter(table);
+            container = $('#latte-popupmenuholder');
+        }
+
+        $(html).appendTo(container);
+    },
+
+    makeImageMap: function(table, skipFirstRow, parameters) {
+        var isFirstRow = skipFirstRow;
+        var isImage = true;
+        var areas = [];
+        var image = null;
+        var mapName = 'map' + this.nextMapId;
+        this.nextMapId++;
+
+        table.find("> tbody > tr").each(function() {
+            var row = $(this);
+            if (isFirstRow) {
+                isFirstRow = false;
+            } else if (isImage) {
+                isImage = false;
+                image = row.find('img').first();
+                image.attr('usemap', '#' + mapName);
+            } else {
+                var tds = row.find('td');
+                if (tds.length == 3) {
+                    var shape = Latte.trim($(tds[1]).text()).toLowerCase();
+                    if (shape == 'rectangle') {
+                        shape = 'rect';
+                    }
+                    var coords = Latte.trim($(tds[2]).text());
+                    var alt = Latte.trim($(tds[0]).text());
+                    var link = null;
+                    var linkTarget = null;
+                    var anchor = $(tds[0]).find('a');
+                    if (anchor.length > 0) {
+                        link = anchor.attr('href') != undefined ? anchor.attr('href') : null;
+                        linkTarget = anchor.attr('target') != undefined ? anchor.attr('target') : null;
+                    }
+                    areas.push({
+                        shape: shape,
+                        coords: coords,
+                        link: link,
+                        target: linkTarget
+                    });
+                }
+            }
+        });
+
+        table.hide();
+
+        var html = "<map name='" + mapName + "'>";
+        for (var i = 0; i < areas.length; i++) {
+            var area = areas[i];
+            html += "<area shape='" + area.shape + "' coords='" + area.coords + "' href='" + this.htmlEncode(area.link) + "'";
+            if (area.linkTarget != null) {
+                html += " target='" + area.linkTarget + "'";
+            }
+            html += "/>";
+        }
+        html += "</map>";
+
+        $(html).insertAfter(table);
+        $(image).insertAfter(table);
+    },
+
+    // utilities
+
+    extractParameters: function(raw) {
+        var parameters = {};
+        var nest = 0;
+        var data = "";
+        for (var i = 0; i < raw.length; i++) {
+            var ch = raw.charAt(i);
+            if (ch == '[') {
+                nest++;
+            } else if (ch == ']') {
+                nest--;
+                var pair = data.split("=");
+                if (pair.length == 2) {
+                    parameters[pair[0].toLowerCase().trim()] = pair[1].trim();
+                }
+                data = "";
+            } else {
+                if (nest == 1) {
+                    data += ch;
+                }
+            }
+        }
+        return parameters;
+    },
+
+    removeParameters: function(raw) {
+        var nest = 0;
+        var output = "";
+        for (var i = 0; i < raw.length; i++) {
+            var ch = raw.charAt(i);
+            if (ch == '[') {
+                nest++;
+            } else if (ch == ']') {
+                nest--;
+            } else {
+                if (nest == 0) {
+                    output += ch;
+                }
+            }
+        }
+        return output.trim();
+    },
+
+    scrollTo: function(target) {
+        var container = $('#s4-workspace');
+        container.animate({
+            scrollTop: target.offset().top - container.offset().top
+        }, 200);
+    },
+
+    htmlEncode: function(value) {
+        return $('<div/>').text(value).html();
+    },
+
+    trim: function(s) {
+        s = s.replace(/\u200B/g, ''); // remove zero width space characters!
+        return s.trim();
+    },
+
+    // parsing logic
+
+    parse: function() {
+        if (!this.inDesignMode) {
+            $("table").each(function() {
+                var row;
+                var skipFirstRow;
+                var ths = $(this).find("> tbody > tr > th");
+                var tds = $(this).find("> tbody > tr > td");
+                if (ths.length > 0) {
+                    row = ths.first();
+                    skipFirstRow = false;
+                } else if (tds.length > 0) {
+                    row = tds.first();
+                    skipFirstRow = true;
+                } else {
+                    ths = $(this).find("> tr > th");
+                    tds = $(this).find("> tr > td");
+                    if (ths.length > 0) {
+                        row = ths.first();
+                        skipFirstRow = false;
+                    } else if (tds.length > 0) {
+                        row = tds.first();
+                        skipFirstRow = true;
+                    } else {
+                        // table with no row!
+                        return;
+                    }
+                }
+                var parameters = Latte.extractParameters(Latte.trim(row.text()));
+                var table = row.parent().parent().parent();
+                var rowText = Latte.trim(row.text());
+                if (rowText.indexOf("[Accordion]") != -1) {
+                    Latte.makeAccordion(table, skipFirstRow, parameters);
+                    Latte.hasAccordions = true;
+                } else if (rowText.indexOf("[Tabulator]") != -1) {
+                    Latte.makeTabulator(table, skipFirstRow, parameters);
+                    Latte.hasTabulators = true;
+                } else if (rowText.indexOf("[Carousel]") != -1) {
+                    Latte.makeCarousel(table, skipFirstRow, parameters);
+                } else if (rowText.indexOf("[Popup]") != -1) {
+                    Latte.makePopup(table, skipFirstRow, parameters);
+                    Latte.hasPopups = true;
+                } else if (rowText.indexOf("[Float]") != -1) {
+                    Latte.makeFloat(table, skipFirstRow, parameters);
+                } else if (rowText.indexOf("[PopupMenu]") != -1) {
+                    Latte.makePopupMenu(table, skipFirstRow, parameters);
+                    Latte.hasPopupMenus = true;
+                } else if (rowText.indexOf("ImageMap]") != -1) {
+                    Latte.makeImageMap(table, skipFirstRow, parameters);
+                }
+            });
+        }
+    },
+
+    init: function() {
+        if (this.hasAccordions) {
+            $(".latte-accordion").each(function() {
+                var button = $(this);
+                button.click(function() {
+                    Latte.toggleAccordion($(this));
+                });
+            });
+        }
+
+        if (this.hasPopups) {
+            for (var i = 0; i < this.popupIds.length; i++) {
+                var id = "#" + this.popupIds[i];
+                $("a[href='" + id + "']").each(function() {
+                    var popup = $(id);
+                    $(this).click(function() {
+                        popup.css('display', 'block');
+                    });
+                });
+            }
+
+            $(".latte-popup-close").each(function() {
+                var button = $(this);
+                button.click(function() {
+                    var popup = button.parent().parent().parent();
+                    popup.css('display', 'none');
+                });
+            });
+        }
+
+        if (this.hasPopupMenus) {
+            var handler = function() {
+                var trigger = $(this);
+                trigger.mouseover(function(event) {
+                    var target = $(event.target);
+                    var name = $(this).attr('href').substring(1);
+                    var menu = $('#latte-popupmenu-' + name);
+                    var holder = $('#latte-popupmenuholder');
+                    var workspace = $('#s4-workspace');
+                    var shapeX = 0;
+                    var shapeY = 0;
+                    if (target.prop('tagName').toLowerCase() == 'area') {
+                        if (target.attr('shape') == 'rect') {
+                            var coords = target.attr('coords').split(',');
+                            shapeX = parseInt(coords[2]);
+                            shapeY = parseInt(coords[1]);
+                        } else if (target.attr('shape') == 'circle') {
+                            var coords = target.attr('coords').split(',');
+                            shapeX = parseInt(coords[0]) + parseInt(coords[2]);
+                            shapeY = parseInt(coords[1]) - parseInt(coords[2]);
+                        }
+                        // use the associated image as reference instead
+                        var mapName = target.parent().attr('name');
+                        target = $("img[usemap='#" + mapName + "']");
+                    }
+                    var x = (target.offset().left + trigger.outerWidth() + parseInt(menu.attr("offsetx")) - holder.offset().left + shapeX) + "px";
+                    var y = (target.offset().top + parseInt(menu.attr("offsety")) - holder.offset().top + shapeY) + "px";
+                    menu.css({
+                        top: y,
+                        left: x,
+                        position: 'absolute'
+                    });
+                    $('.latte-popupmenu').hide();
+                    menu.fadeIn(500);
+                });
+            };
+
+            for (var i = 0; i < this.popupMenus.length; i++) {
+                var menu = this.popupMenus[i];
+                if (menu.name != undefined) {
+                    $("a[href='#" + menu.name + "']").each(handler);
+                    $("area[href='#" + menu.name + "']").each(handler);
+                }
+            }
+
+            $('.latte-popupmenu > ul > li').each(function() {
+                var li = $(this);
+                var ul = $(this).find("ul");
+                li.mouseover(function() {
+                    var li = $(this);
+                    $('.latte-popupmenu > ul > li.active').removeClass('active');
+                    li.addClass('active');
+                    var x = li.outerWidth();
+                    var y = 0;
+                    var ul = li.find("ul");
+                    if (ul.length == 0 || ul.css('display') == 'none') {
+                        $('.latte-popupmenu > ul > li > ul').hide();
+                        if (ul.length > 0) {
+                            ul.css({
+                                top: y,
+                                left: x,
+                                position: 'absolute'
+                            });
+                            ul.fadeIn(500);
+                        }
+                    }
+                });
+                li.click(function(event) {
+                    var li = $(event.target);
+                    if (li.attr('link') != undefined) {
+                        var link = li.attr('link');
+                        var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
+                        if (target == 'self') {
+                            location = link;
+                        } else {
+                            window.open(link, target);
+                        }
+                    } else {
+                        event.stopPropagation();
+                    }
+                });
+            });
+
+            $('.latte-popupmenu > ul > li > ul > li').each(function() {
+                var li = $(this);
+                li.mouseover(function() {
+                    var li = $(this);
+                    $('.latte-popupmenu > ul > li > ul > li.active').removeClass('active');
+                    li.addClass('active');
+                });
+                li.click(function(event) {
+                    var li = $(event.target);
+                    if (li.attr('link') != undefined) {
+                        var link = li.attr('link');
+                        var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
+                        if (target == 'self') {
+                            location = link;
+                        } else {
+                            window.open(link, target);
+                        }
+                    } else {
+                        event.stopPropagation();
+                    }
+                });
+            });
+
+            $(document).click(function() {
+                $('.latte-popupmenu').fadeOut(500, function() {
+                    $('.latte-popupmenu li.active').removeClass('active');
+                    $('.latte-popupmenu > ul > li > ul').hide();
+                });
+            });
+        }
+
+        // do expansion
+        $(function() {
+            var hash = window.location.hash.substr(1);
+            if (Latte.autoExpands[hash] != undefined) {
+                Latte.autoExpands[hash]();
+            }
+        });
+    },
+
+    convert: function() {
+        if (!this.inDesignMode) {
+            this.parse();
+            this.init();
+        }
+    },
+
+
+    // component functions
+
+    toggleAccordion: function(button) {
+        button.toggleClass("latte-active-accordion");
+        var panel = button.next();
+        if (panel.attr("style")) {
+            panel.removeAttr("style");
+        } else {
+            panel.css("max-height", panel.prop("scrollHeight") + "px");
+        }
+    },
+
+    openTab: function(button, tabulator, tab) {
+        $('#' + tabulator + ' .latte-tab-button').removeClass('active');
+        $(button).addClass('active');
+        $('#' + tabulator + ' .latte-tab-body').hide();
+        $('#' + tab).show();
     }
-}
+};
 
-function openTab(button, tabulator, tab) {
-	$('#' + tabulator + ' .tab-button').removeClass('active');
-	$(button).addClass('active');
-	$('#' + tabulator + ' .tab-body').hide();
-	$('#' + tab).show();
-}
+// start parsing and conversion here!
 
-if (!inDesignMode) {
-	if (hasAccordions) {
-		$(".accordion").each(function() {
-		 var button = $(this);
-		 button.click(function() {
-		    toggleAccordion($(this));
-		 });
-		});
-	}
+Latte.convert();
 
-	if (hasPopups) {
-		for (var i = 0 ; i < popupIds.length ; i++) {
-			var id = "#" + popupIds[i];
-			$("a[href='" + id + "']").each(function() {
-				var popup = $(id);
-				$(this).click(function() {
-					popup.css('display', 'block');
-				});
-			});
-		}
-
-		$(".popup-close").each(function() {
-			var button = $(this);
-			button.click(function() {
-				var popup = button.parent().parent().parent();
-				popup.css('display', 'none');
-			});
-		});
-	}
-
-	if (hasPopupMenus) {
-		var handler = function() {
-			var trigger = $(this);
-			trigger.mouseover(function(event) {
-				var target = $(event.target);
-				var name = $(this).attr('href').substring(1);
-				var menu = $('#popupmenu-' + name);
-				var holder = $('#popupmenuholder');
-				var workspace = $('#s4-workspace');
-				var shapeX = 0;
-				var shapeY = 0;
-				if (target.prop('tagName').toLowerCase() == 'area') {
-					if (target.attr('shape') == 'rect') {
-						var coords = target.attr('coords').split(',');
-						shapeX = parseInt(coords[2]);
-						shapeY = parseInt(coords[1]);
-					} else if (target.attr('shape') == 'circle') {
-						var coords = target.attr('coords').split(',');
-						shapeX = parseInt(coords[0]) + parseInt(coords[2]);
-						shapeY = parseInt(coords[1]) - parseInt(coords[2]);
-					}
-					// use the associated image as reference instead
-					var mapName = target.parent().attr('name');
-					target = $("img[usemap='#" + mapName + "']");
-				}
-				var	x = (target.offset().left + trigger.outerWidth() + parseInt(menu.attr("offsetx")) - holder.offset().left + shapeX) + "px";
-				var	y = (target.offset().top + parseInt(menu.attr("offsety")) - holder.offset().top + shapeY) + "px";
-				menu.css({top: y, left: x, position:'absolute'});
-				$('.popupmenu').hide();
-				menu.fadeIn(500);
-			});
-		};
-
-		for (var i = 0 ; i < popupMenus.length ; i++) {
-			var  menu = popupMenus[i];
-			if (menu.name != undefined) {
-				$("a[href='#" + menu.name + "']").each(handler);
-				$("area[href='#" + menu.name + "']").each(handler);
-			}
-		}
-
-		$('.popupmenu > ul > li').each(function() {
-			var li = $(this);
-			var ul = $(this).find("ul");
-			li.mouseover(function() {
-				var li = $(this);
-				$('.popupmenu > ul > li.active').removeClass('active');
-				li.addClass('active');
-				var x = li.outerWidth();
-				var y = 0;
-				var ul = li.find("ul");
-				if (ul.length == 0 || ul.css('display') == 'none') {
-					$('.popupmenu > ul > li > ul').hide();
-					if (ul.length > 0) {
-						ul.css({top: y, left: x, position:'absolute'});
-						ul.fadeIn(500);
-					}
-				}
-			});
-			li.click(function(event) {
-				var li = $(event.target);
-				if (li.attr('link') != undefined) {
-					var link = li.attr('link');
-					var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
-					if (target == 'self') {
-						location = link;
-					} else {
-						window.open(link, target);
-					}
-				} else {
-					event.stopPropagation();
-				}
-			});
-		});
-
-		$('.popupmenu > ul > li > ul > li').each(function() {
-			var li = $(this);
-			li.mouseover(function() {
-				var li = $(this);
-				$('.popupmenu > ul > li > ul > li.active').removeClass('active');
-				li.addClass('active');
-			});
-			li.click(function(event) {
-				var li = $(event.target);
-				if (li.attr('link') != undefined) {
-					var link = li.attr('link');
-					var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
-					if (target == 'self') {
-						location = link;
-					} else {
-						window.open(link, target);
-					}
-				} else {
-					event.stopPropagation();
-				}
-			});
-		});
-
-		$(document).click(function() {
-			$('.popupmenu').fadeOut(500, function(){
-				$('.popupmenu li.active').removeClass('active');
-				$('.popupmenu > ul > li > ul').hide();
-			});
-		});
-	}
-
-	// do expansion
-	$(function() {
-		var hash = window.location.hash.substr(1);
-		if (autoExpands[hash] != undefined) {
-			autoExpands[hash]();
-		}
-	});
-}
 //-->
 </script>
+
