@@ -672,22 +672,27 @@ var Latte = {
             $("table").each(function() {
                 var row;
                 var skipFirstRow;
+                var table;
                 var ths = $(this).find("> tbody > tr > th");
                 var tds = $(this).find("> tbody > tr > td");
                 if (ths.length > 0) {
                     row = ths.first();
+                    table = row.parent().parent().parent();
                     skipFirstRow = false;
                 } else if (tds.length > 0) {
                     row = tds.first();
+                    table = row.parent().parent().parent();
                     skipFirstRow = true;
                 } else {
                     ths = $(this).find("> tr > th");
                     tds = $(this).find("> tr > td");
                     if (ths.length > 0) {
                         row = ths.first();
+                        table = row.parent().parent();
                         skipFirstRow = false;
                     } else if (tds.length > 0) {
                         row = tds.first();
+                        table = row.parent().parent();
                         skipFirstRow = true;
                     } else {
                         // table with no row!
@@ -695,7 +700,6 @@ var Latte = {
                     }
                 }
                 var parameters = Latte.extractParameters(Latte.trim(row.text()));
-                var table = row.parent().parent().parent();
                 var rowText = Latte.trim(row.text());
                 if (rowText.indexOf("[Accordion]") != -1) {
                     Latte.makeAccordion(table, skipFirstRow, parameters);
