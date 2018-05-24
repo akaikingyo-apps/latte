@@ -37,7 +37,7 @@
     padding: 0 18px;
     background-color: white;
     max-height: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
     transition: max-height 0.2s ease-out;
     margin-bottom: 0;
 }
@@ -47,7 +47,7 @@
 .latte-popup {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 999; /* Sit on top */
+    z-index: 1002; /* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
@@ -115,7 +115,7 @@
 	right:40px;
 	background-color: #fff;
 	box-shadow: 2px 2px 3px #999;
-	z-index: 999;
+	z-index: 1000;
 }
 
 /* tabulator */
@@ -152,7 +152,7 @@
 
 .latte-popupmenu {
 	position: absolute;
-	z-index: 999;
+	z-index: 1001;
 }
 .latte-popupmenu ul {
 	list-style: none;
@@ -199,6 +199,7 @@
 	padding: 5px 10px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	white-space: nowrap;
+	z-index: 1003;
 }
 
 </style>
@@ -214,6 +215,7 @@ var Latte = {
     hasTabulators: false,
     hasPopups: false,
     hasPopupMenus: false,
+    hasTips: false,
     nextTabId: 1,
     nextCarouselId: 1,
     nextPopupId: 1,
@@ -221,6 +223,7 @@ var Latte = {
     nextTipId: 1,
     popupIds: [],
     popupMenus: [],
+    tipsMap: {},
     autoExpands: {},
 
     // the core functions
@@ -255,9 +258,9 @@ var Latte = {
                 html += "<div class='latte-accordion'>" + title + "</div>";
             }
             if (i < bodies.length) {
-                html += "<div class='latte-panel'>" + bodies[i] + "</div>";
+                html += "<div class='latte-panel' style='overflow:hidden'>" + bodies[i] + "</div>";
             } else {
-                html += "<div class='latte-panel'></div>";
+                html += "<div class='latte-panel' style='overflow:hidden'></div>";
             }
         }
 
@@ -591,6 +594,19 @@ var Latte = {
         $(image).insertAfter(table);
     },
 
+    makeTip: function(table, skipFirstRow, parameters) {
+    	var content = "";
+    	this.forEachTableRowData(table, skipFirstRow, function(row) {
+			content = row.html();
+    	});
+
+		table.hide();
+
+		if (parameters.name != undefined) {
+			this.tipsMap[parameters.name] = content;
+		}
+    },
+
     // utilities
 
     forEachTableRow: function(table, skipFirstRow, handler) {
@@ -732,6 +748,9 @@ var Latte = {
                     Latte.hasPopupMenus = true;
                 } else if (rowText.indexOf("ImageMap]") != -1) {
                     Latte.makeImageMap(table, skipFirstRow, parameters);
+                } else if (rowText.indexOf("[Tip]") != -1) {
+                	Latte.makeTip(table, skipFirstRow, parameters);
+                	Latte.hasTips = true;
                 }
             });
         }
@@ -895,7 +914,7 @@ var Latte = {
 					var anchor = $(event.target)
 					var id = anchor.attr('latte-id');
 					var tip = $('#' + id);
-					tip.css({ top: anchor.outerHeight() + 10, left: -anchor.outerWidth()});
+					tip.css({ top: anchor.outerHeight() + 10, left: -anchor.outerWidth() });
 					tip.fadeIn(200);
 				});
 				anchor.mouseout(function(event) {
@@ -904,6 +923,30 @@ var Latte = {
 				});
 			}
 		});
+
+		if (this.hasTips) {
+			for (var id in this.tipsMap) {
+				var content = this.tipsMap[id];
+				$("a[href='#" + id + "'").each(function() {
+				 	var anchor = $(this);
+					var id = 'latte-tip' + Latte.nextTipId ++;
+					anchor.attr('latte-id', id);
+					var html = "<span style='position:relative'><div id='" + id + "' class='latte-tip' style='display:none'>" + content + "<div></span>";
+					$(html).insertAfter(anchor);
+					anchor.mouseover(function(event) {
+						var anchor = $(event.target)
+						var id = anchor.attr('latte-id');
+						var tip = $('#' + id);
+						tip.css({ top: anchor.outerHeight() + 10, left: -anchor.outerWidth() });
+						tip.fadeIn(200);
+					});
+					anchor.mouseout(function(event) {
+						var id = $(event.target).attr('latte-id');
+						$('#' + id).fadeOut(200);
+					});
+				});
+			}
+		}
 
         // do expansion
         $(function() {
@@ -921,16 +964,17 @@ var Latte = {
         }
     },
 
-
     // component functions
 
     toggleAccordion: function(button) {
         button.toggleClass("latte-active-accordion");
         var panel = button.next();
-        if (panel.attr("style")) {
-            panel.removeAttr("style");
-        } else {
+        if (panel.css("overflow") == "hidden") {
+            panel.css("overflow", "");
             panel.css("max-height", panel.prop("scrollHeight") + "px");
+        } else {
+            panel.css("overflow", "hidden");
+            panel.css("max-height", "");
         }
     },
 
