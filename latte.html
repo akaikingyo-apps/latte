@@ -45,17 +45,17 @@
 /* popup */
 
 .latte-popup {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1002; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
+    display: none; /* hidden by default */
+    position: fixed; /* stay in place */
+    z-index: 1002; /* sit on top */
+    padding-top: 100px; /* location of the box */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    width: 100%; /* full width */
+    height: 100%; /* full height */
+    overflow: auto; /* enable scroll if needed */
+    background-color: rgb(0,0,0); /* fallback color */
+    background-color: rgba(0,0,0,0.4); /* black w/ opacity */
 }
 
 .latte-popup-content {
@@ -113,8 +113,10 @@
 	position:fixed;
 	bottom:90px;
 	right:40px;
-	background-color: #fff;
-	box-shadow: 2px 2px 3px #999;
+	//background-color: #fff;
+	//box-shadow: 2px 2px 3px #999;
+	padding: 0;
+	margin: 0;
 	z-index: 1000;
 }
 
@@ -202,28 +204,43 @@
 	z-index: 1003;
 }
 
+/* stick */
+
+.latte-sticky {
+	z-index: 999;
+}
+
 </style>
 
 <script type="text/javascript">
 //<![CDATA[
 
-/* project latte */
+/* project latte
+
+   version: 1.0.0 (28 May 2018)
+   ----------------------------
+   initial release
+*/
+
 var Latte = {
 
-    inDesignMode: document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1",
+    inDesignMode: MSOWebPartPageFormName != undefined ? document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1" : false,
     hasAccordions: false,
     hasTabulators: false,
     hasPopups: false,
     hasPopupMenus: false,
     hasTips: false,
+    hasStickys: false,
     nextTabId: 1,
     nextCarouselId: 1,
     nextPopupId: 1,
     nextMapId: 1,
     nextTipId: 1,
+    nextStickyId: 1,
     popupIds: [],
     popupMenus: [],
     tipsMap: {},
+    stickys: [],
     autoExpands: {},
 
     // the core functions
@@ -607,6 +624,27 @@ var Latte = {
 		}
     },
 
+    makeSticky: function(table, skipFirstRow, parameters) {
+    	var content = null;
+    	var stickyContent = null;
+    	this.forEachTableRowData(table, skipFirstRow, function(row) {
+			if (content == null) {
+				content = row.html();
+			} else {
+				stickyContent = row.html();
+			}
+    	});
+		table.hide();
+
+		var id = "latte-sticky" + this.nextStickyId ++;
+		var html = "<div id='" + id + "-content' style='position:relative'>";
+		html += "<div id='" + id + "-sticky' style='position:absolute;top:0px;' class='latte-sticky'>";
+		html += stickyContent + "</div>" + content + "</div>";;
+		this.stickys.push(id);
+
+		$(html).insertAfter(table);
+    },
+
     // utilities
 
     forEachTableRow: function(table, skipFirstRow, handler) {
@@ -678,10 +716,17 @@ var Latte = {
         return output.trim();
     },
 
+	getContainer: function() {
+		var container = $('#s4-workspace');
+	    if (container.length == 0) {
+	    	container = window;
+        }
+        return container;
+	},
+
     scrollTo: function(target) {
-        var container = $('#s4-workspace');
-        container.animate({
-            scrollTop: target.offset().top - container.offset().top
+        this.getContainer().animate({
+            scrollTop: target.offset().top - Latte.getContainer().offset().top
         }, 200);
     },
 
@@ -692,6 +737,13 @@ var Latte = {
     trim: function(s) {
         s = s.replace(/\u200B/g, ''); // remove zero width space characters!
         return s.trim();
+    },
+
+    parsePixel: function(s) {
+    	if (s.indexOf("px") != -1) {
+    		s = s.replace("px", "");
+    	}
+    	return parseInt(s.trim());
     },
 
     // parsing logic
@@ -751,6 +803,9 @@ var Latte = {
                 } else if (rowText.indexOf("[Tip]") != -1) {
                 	Latte.makeTip(table, skipFirstRow, parameters);
                 	Latte.hasTips = true;
+                } else if (rowText.indexOf("[Sticky]") != -1) {
+                	Latte.makeSticky(table, skipFirstRow, parameters);
+                	Latte.hasStickys = true;
                 }
             });
         }
@@ -784,6 +839,15 @@ var Latte = {
                     popup.css('display', 'none');
                 });
             });
+
+            $(".latte-popup-content").click(function(event) {
+            	event.stopPropagation();
+            });
+
+            $(".latte-popup").click(function(event) {
+            	$(event.target).css('display', 'none');
+			    event.stopPropagation();
+            });
         }
 
         if (this.hasPopupMenus) {
@@ -794,7 +858,7 @@ var Latte = {
                     var name = $(this).attr('href').substring(1);
                     var menu = $('#latte-popupmenu-' + name);
                     var holder = $('#latte-popupmenuholder');
-                    var workspace = $('#s4-workspace');
+                    var workspace = Latte.getContainer();
                     var shapeX = 0;
                     var shapeY = 0;
                     if (target.prop('tagName').toLowerCase() == 'area') {
@@ -948,7 +1012,32 @@ var Latte = {
 			}
 		}
 
+		if (this.hasStickys) {
+			this.getContainer().scroll(function() {
+				for (var i = 0 ; i < Latte.stickys.length ; i ++) {
+					var id = Latte.stickys[i];
+					var container = Latte.getContainer();
+					var content = $('#' + id + '-content');
+					var sticky = $('#' + id + '-sticky');
+					var y = container.offset().top - content.offset().top;
+					if (y >= 0) {
+						if (y < (content.outerHeight(true) - sticky.outerHeight(true))) {
+							sticky.css({'position': 'fixed', top: container.offset().top, bottom: ""});
+						} else {
+							sticky.css({ 'position': 'absolute', top: "", bottom: 0 });
+						}
+					} else {
+						sticky.css({'position': 'absolute', top: 0, bottom: "" });
+					}
+				}
+				Latte.computeStickyOffset();
+			});
+
+			this.computeStickyOffset();
+		}
+
         // do expansion
+
         $(function() {
             var hash = window.location.hash.substr(1);
             if (Latte.autoExpands[hash] != undefined) {
@@ -983,6 +1072,25 @@ var Latte = {
         $(button).addClass('active');
         $('#' + tabulator + ' .latte-tab-body').hide();
         $('#' + tab).show();
+    },
+
+    computeStickyOffset: function() {
+    	for (var i = 0 ; i < this.stickys.length ; i ++) {
+			var id = this.stickys[i];
+			var content = $('#' + id + '-content');
+			var sticky = $('#' + id + '-sticky');
+			var offsetX;
+			if (sticky.css('position') == 'fixed') {
+				// absolute position includes parent element left + parent outwidth including margin and border
+				// need to subtract parent element left margin as the outerwidth also counted it in
+				offsetX = content.offset().left - parseInt(content.css('marginLeft')) + content.outerWidth(true);
+			} else {
+				// relative position from parent after border left, which is parent width excluding margin and left border, then plus
+				// right border and right margin
+				offsetX = content.outerWidth(false) + parseInt(content.css('marginRight')) - Latte.parsePixel(content.css('border-left-width'));
+			}
+			sticky.css('left',offsetX);
+		}
     }
 };
 
