@@ -1,118 +1,141 @@
 <style type="text/css">
-
 /* accordion style */
 
 .latte-accordion {
-    background-color: #012E58;
-    color: #fff;
-    cursor: pointer;
-    padding: 15px;
-    margin-bottom: 1px;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-    font-weight: bold;
-    transition: 0.4s;
+	background-color: #012E58;
+	color: #fff;
+	cursor: pointer;
+	padding: 15px;
+	margin-bottom: 1px;
+	border: none;
+	text-align: left;
+	outline: none;
+	font-size: 15px;
+	font-weight: bold;
+	transition: 0.4s;
 }
 
-.latte-active-accordion, .latte-accordion:hover {
-    background-color: #4C7BA5;
+.latte-active-accordion,
+.latte-accordion:hover {
+	background-color: #4C7BA5;
 }
 
 .latte-accordion:after {
-    content: '\002B';
-    color: #fff;
-    font-weight: bold;
-    font-size: 15px;
-    float: right;
-    margin-left: 5px;
+	content: '\002B';
+	color: #fff;
+	font-weight: bold;
+	font-size: 15px;
+	float: right;
+	margin-left: 5px;
 }
 
 .latte-active-accordion:after {
-    content: "\2212";
+	content: "\2212";
 }
 
 .latte-panel {
-    padding: 0 18px;
-    background-color: white;
-    max-height: 0;
-    /*overflow: hidden;*/
-    transition: max-height 0.2s ease-out;
-    margin-bottom: 0;
+	padding: 0 18px;
+	background-color: white;
+	max-height: 0;
+	/*overflow: hidden;*/
+	transition: max-height 0.2s ease-out;
+	margin-bottom: 0;
 }
 
 /* popup */
 
 .latte-popup {
-    display: none; /* hidden by default */
-    position: fixed; /* stay in place */
-    z-index: 1002; /* sit on top */
-    padding-top: 100px; /* location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* full width */
-    height: 100%; /* full height */
-    overflow: auto; /* enable scroll if needed */
-    background-color: rgb(0,0,0); /* fallback color */
-    background-color: rgba(0,0,0,0.4); /* black w/ opacity */
+	display: none;
+	/* hidden by default */
+	position: fixed;
+	/* stay in place */
+	z-index: 1002;
+	/* sit on top */
+	padding-top: 100px;
+	/* location of the box */
+	left: 0;
+	top: 0;
+	width: 100%;
+	/* full width */
+	height: 100%;
+	/* full height */
+	overflow: auto;
+	/* enable scroll if needed */
+	background-color: rgb(0, 0, 0);
+	/* fallback color */
+	background-color: rgba(0, 0, 0, 0.4);
+	/* black w/ opacity */
 }
 
 .latte-popup-content {
-    position: relative;
-    background-color: #fff;
-    margin: auto;
-    padding: 0;
-    border: 1px solid #888;
-    width: 80%;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
-    -webkit-animation-name: latte-animatetop;
-    -webkit-animation-duration: 0.4s;
-    animation-name: latte-animatetop;
-    animation-duration: 0.4s
+	position: relative;
+	background-color: #fff;
+	margin: auto;
+	padding: 0;
+	border: 1px solid #888;
+	width: 80%;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	-webkit-animation-name: latte-animatetop;
+	-webkit-animation-duration: 0.4s;
+	animation-name: latte-animatetop;
+	animation-duration: 0.4s
 }
 
 @-webkit-keyframes latte-animatetop {
-    from {top:-300px; opacity:0}
-    to {top:0; opacity:1}
+	from {
+		top: -300px;
+		opacity: 0
+	}
+	to {
+		top: 0;
+		opacity: 1
+	}
 }
 
 @keyframes latte-animatetop {
-    from {top:-300px; opacity:0}
-    to {top:0; opacity:1}
+	from {
+		top: -300px;
+		opacity: 0
+	}
+	to {
+		top: 0;
+		opacity: 1
+	}
 }
 
 .latte-popup-close {
-    color: white;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    margin-top: -3px;
+	color: white;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	margin-top: -3px;
 }
 
 .latte-popup-close:hover,
 .latte-popup-close:focus {
-    color: #4C7BA5;
-    text-decoration: none;
-    cursor: pointer;
+	color: #4C7BA5;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 .latte-popup-header {
-    padding: 10px 16px;
-    background-color: #012E58;
-    color: white;
-    font-size: 20px;
-    min-height: 24px;
+	padding: 10px 16px;
+	background-color: #012E58;
+	color: white;
+	font-size: 20px;
+	min-height: 24px;
 }
 
-.latte-popup-body {padding: 2px 16px;}
+.latte-popup-body {
+	padding: 2px 16px;
+}
 
 /* float */
 
 .latte-float {
-	position:fixed;
-	bottom:90px;
-	right:40px;
+	position: fixed;
+	bottom: 90px;
+	right: 40px;
 	padding: 0;
 	margin: 0;
 	z-index: 1000;
@@ -121,26 +144,26 @@
 /* tabulator */
 
 .latte-tab-header {
-    background-color: #012E58;
-    color: #fff;
-    width: 100%;
-    content: "";
-    display: table;
-    clear: both;
+	background-color: #012E58;
+	color: #fff;
+	width: 100%;
+	content: "";
+	display: table;
+	clear: both;
 }
 
 .latte-tab-button {
-    float:left;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 16px;
-    cursor: pointer;
-    text-align: center;
+	float: left;
+	font-size: 15px;
+	font-weight: bold;
+	padding: 16px;
+	cursor: pointer;
+	text-align: center;
 }
 
 .latte-tab-button.active,
 .latte-tab-button:hover {
-    background-color: #4C7BA5;
+	background-color: #4C7BA5;
 }
 
 .latte-tab-body {
@@ -154,14 +177,15 @@
 	position: absolute;
 	z-index: 1001;
 }
+
 .latte-popupmenu ul {
 	list-style: none;
 	margin: 2px;
 	border-radius: 15px;
-    	border: 2px solid #73AD21;
-    	background-color: #fff;
-    	opacity: 0.95;
-    	padding: 0;
+	border: 2px solid #73AD21;
+	background-color: #fff;
+	opacity: 0.95;
+	padding: 0;
 }
 
 .latte-popupmenu li:nth-of-type(odd) {
@@ -184,7 +208,7 @@
 	color: #fff;
 }
 
-.latte-popupmenu > ul > li > ul {
+.latte-popupmenu>ul>li>ul {
 	position: absolute;
 	display: none;
 }
@@ -207,7 +231,6 @@
 .latte-sticky {
 	z-index: 999;
 }
-
 </style>
 
 <script type="text/javascript">
@@ -222,181 +245,181 @@
 
 var Latte = {
 
-    inDesignMode: MSOWebPartPageFormName != undefined ? document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1" : false,
-    hasAccordions: false,
-    hasTabulators: false,
-    hasPopups: false,
-    hasPopupMenus: false,
-    hasTips: false,
-    hasStickys: false,
-    nextTabId: 1,
-    nextCarouselId: 1,
-    nextPopupId: 1,
-    nextMapId: 1,
-    nextTipId: 1,
-    nextStickyId: 1,
-    popupIds: [],
-    popupMenus: [],
-    tipsMap: {},
-    stickys: [],
-    autoExpands: {},
+	inDesignMode: MSOWebPartPageFormName != undefined ? document.forms[MSOWebPartPageFormName].MSOLayout_InDesignMode.value == "1" : false,
+	hasAccordions: false,
+	hasTabulators: false,
+	hasPopups: false,
+	hasPopupMenus: false,
+	hasTips: false,
+	hasStickys: false,
+	nextTabId: 1,
+	nextCarouselId: 1,
+	nextPopupId: 1,
+	nextMapId: 1,
+	nextTipId: 1,
+	nextStickyId: 1,
+	popupIds: [],
+	popupMenus: [],
+	tipsMap: {},
+	stickys: [],
+	autoExpands: {},
 
-    // the core functions
+	// the core functions
 
-    makeAccordion: function(table, skipFirstRow, parameters) {
-        var titles = [];
-        var bodies = [];
-        var isTitle = true;
+	makeAccordion: function(table, skipFirstRow, parameters) {
+		var titles = [];
+		var bodies = [];
+		var isTitle = true;
 
-        this.forEachTableRowData(table, skipFirstRow, function(td) {
-       		if (isTitle) {
-				titles.push(td.text());
-			} else {
-				bodies.push(td.html());
-			}
-			isTitle = !isTitle;
-        });
-
-        table.hide();
-
-        var html = "";
-
-        for (var i = 0; i < titles.length; i++) {
-            var p = this.extractParameters(titles[i]);
-            var title = this.removeParameters(titles[i]);
-            if (p.name != undefined) {
-                html += "<a name='" + p.name + "'></a>";
-                html += "<div class='latte-accordion' id='latte-accordion-" + p.name + "'>" + title + "</div>";
-                var accordionId = "#latte-accordion-" + p.name;
-                this.autoExpands[p.name] = new Function("var button=$('" + accordionId + "'); Latte.toggleAccordion(button); Latte.scrollTo(button);");
-            } else {
-                html += "<div class='latte-accordion'>" + title + "</div>";
-            }
-            if (i < bodies.length) {
-                html += "<div class='latte-panel' style='overflow:hidden'>" + bodies[i] + "</div>";
-            } else {
-                html += "<div class='latte-panel' style='overflow:hidden'></div>";
-            }
-        }
-
-        $(html).insertAfter(table);
-    },
-
-    makeTabulator: function(table, skipFirstRow, parameters) {
-        var titles = [];
-        var bodies = [];
-        var isTitle = true;
-        var tabWidth = parameters.headerwidth != undefined ? parseInt(parameters.headerwidth) : -1;
-
-        this.forEachTableRowData(table, skipFirstRow, function(td) {
+		this.forEachTableRowData(table, skipFirstRow, function(td) {
 			if (isTitle) {
 				titles.push(td.text());
 			} else {
 				bodies.push(td.html());
 			}
 			isTitle = !isTitle;
-        });
+		});
 
-        table.hide();
+		table.hide();
 
-        var html = "<div id='latte-tabulator" + this.nextTabId + "'><div class='latte-tab-header'>";
-        for (var i = 0; i < titles.length; i++) {
-            var p = this.extractParameters(titles[i]);
-            var title = this.removeParameters(titles[i]);
-            var id = "";
-            var css = "";
-            if (i == 0) {
-                css = " active";
-            }
+		var html = "";
 
-            if (p.name != undefined) {
-                html += "<a name='" + p.name + "'></a>";
-                id = "id='latte-tab-" + p.name + "'";
-                var tabId = "#latte-tab-" + p.name;
-                this.autoExpands[p.name] = new Function("var button=$('" + tabId + "'); Latte.openTab(button, 'latte-tabulator" + this.nextTabId + "', 'latte-tab" + (this.nextTabId + i) + "'); Latte.scrollTo(button);");
-            }
+		for (var i = 0; i < titles.length; i++) {
+			var p = this.extractParameters(titles[i]);
+			var title = this.removeParameters(titles[i]);
+			if (p.name != undefined) {
+				html += "<a name='" + p.name + "'></a>";
+				html += "<div class='latte-accordion' id='latte-accordion-" + p.name + "'>" + title + "</div>";
+				var accordionId = "#latte-accordion-" + p.name;
+				this.autoExpands[p.name] = new Function("var button=$('" + accordionId + "'); Latte.toggleAccordion(button); Latte.scrollTo(button);");
+			} else {
+				html += "<div class='latte-accordion'>" + title + "</div>";
+			}
+			if (i < bodies.length) {
+				html += "<div class='latte-panel' style='overflow:hidden'>" + bodies[i] + "</div>";
+			} else {
+				html += "<div class='latte-panel' style='overflow:hidden'></div>";
+			}
+		}
 
-            var width = tabWidth;
-            var style = "";
-            if (p.width != undefined) {
-                width = parseInt(p.width);
-            }
-            if (width != -1) {
-                style = " style='width:" + width + "px'";
-            }
+		$(html).insertAfter(table);
+	},
 
-            html += "<div " + id + "class='latte-tab-button" + css + "'" + style + " onclick=\"Latte.openTab(this, 'latte-tabulator" + this.nextTabId + "', 'latte-tab" + (this.nextTabId + i) + "')\">" + title + "</div>";
-        }
-        html += "</div>";
+	makeTabulator: function(table, skipFirstRow, parameters) {
+		var titles = [];
+		var bodies = [];
+		var isTitle = true;
+		var tabWidth = parameters.headerwidth != undefined ? parseInt(parameters.headerwidth) : -1;
 
-        for (var i = 0; i < bodies.length; i++) {
-            var style = "";
-            if (i != 0) {
-                style = "display:none";
-            }
-            html += "<div id='latte-tab" + (this.nextTabId + i) + "' class='latte-tab-body' style='" + style + "'>" + bodies[i] + "</div>";
-        }
-        html += "</div>";
+		this.forEachTableRowData(table, skipFirstRow, function(td) {
+			if (isTitle) {
+				titles.push(td.text());
+			} else {
+				bodies.push(td.html());
+			}
+			isTitle = !isTitle;
+		});
 
-        this.nextTabId += titles.length;
+		table.hide();
 
-        $(html).insertAfter(table);
-    },
+		var html = "<div id='latte-tabulator" + this.nextTabId + "'><div class='latte-tab-header'>";
+		for (var i = 0; i < titles.length; i++) {
+			var p = this.extractParameters(titles[i]);
+			var title = this.removeParameters(titles[i]);
+			var id = "";
+			var css = "";
+			if (i == 0) {
+				css = " active";
+			}
 
-    makeCarousel: function(table, skipFirstRow, parameters) {
-        var bodies = [];
+			if (p.name != undefined) {
+				html += "<a name='" + p.name + "'></a>";
+				id = "id='latte-tab-" + p.name + "'";
+				var tabId = "#latte-tab-" + p.name;
+				this.autoExpands[p.name] = new Function("var button=$('" + tabId + "'); Latte.openTab(button, 'latte-tabulator" + this.nextTabId + "', 'latte-tab" + (this.nextTabId + i) + "'); Latte.scrollTo(button);");
+			}
 
-        this.forEachTableRowData(table, skipFirstRow, function(td) {
+			var width = tabWidth;
+			var style = "";
+			if (p.width != undefined) {
+				width = parseInt(p.width);
+			}
+			if (width != -1) {
+				style = " style='width:" + width + "px'";
+			}
+
+			html += "<div " + id + "class='latte-tab-button" + css + "'" + style + " onclick=\"Latte.openTab(this, 'latte-tabulator" + this.nextTabId + "', 'latte-tab" + (this.nextTabId + i) + "')\">" + title + "</div>";
+		}
+		html += "</div>";
+
+		for (var i = 0; i < bodies.length; i++) {
+			var style = "";
+			if (i != 0) {
+				style = "display:none";
+			}
+			html += "<div id='latte-tab" + (this.nextTabId + i) + "' class='latte-tab-body' style='" + style + "'>" + bodies[i] + "</div>";
+		}
+		html += "</div>";
+
+		this.nextTabId += titles.length;
+
+		$(html).insertAfter(table);
+	},
+
+	makeCarousel: function(table, skipFirstRow, parameters) {
+		var bodies = [];
+
+		this.forEachTableRowData(table, skipFirstRow, function(td) {
 			bodies.push(td.html());
-        });
+		});
 
-        table.hide();
-        var carouselId = "latte-carousel" + this.nextCarouselId;
+		table.hide();
+		var carouselId = "latte-carousel" + this.nextCarouselId;
 
-        var html = "<div id='" + carouselId + "' class='carousel slide' data-ride='carousel'>";
-        html += "<ol class='carousel-indicators'>";
-        for (var i = 0; i < bodies.length; i++) {
-            var style = "";
-            if (i == 0) {
-                style = "active";
-            }
-            html += "<li data-target='#" + carouselId + "' data-slide-to='" + i + "' class='" + style + "'></li>";
-        }
-        html += "</ol>";;
-        html += "<div class='carousel-inner'>";
+		var html = "<div id='" + carouselId + "' class='carousel slide' data-ride='carousel'>";
+		html += "<ol class='carousel-indicators'>";
+		for (var i = 0; i < bodies.length; i++) {
+			var style = "";
+			if (i == 0) {
+				style = "active";
+			}
+			html += "<li data-target='#" + carouselId + "' data-slide-to='" + i + "' class='" + style + "'></li>";
+		}
+		html += "</ol>";;
+		html += "<div class='carousel-inner'>";
 
-        for (var i = 0; i < bodies.length; i++) {
-            var style = "";
-            if (i == 0) {
-                style = " active";
-            }
-            html += "<div class='item" + style + "'>" + bodies[i] + "</div>";
-        }
-        html += "</div>";
+		for (var i = 0; i < bodies.length; i++) {
+			var style = "";
+			if (i == 0) {
+				style = " active";
+			}
+			html += "<div class='item" + style + "'>" + bodies[i] + "</div>";
+		}
+		html += "</div>";
 
-        html += "<a class='left carousel-control' href='#" + carouselId + "' data-slide='prev'>";
-        html += "<span class='glyphicon glyphicon-chevron-left'></span>";
-        html += "<span class='sr-only'>Previous</span>";
-        html += "</a>";
+		html += "<a class='left carousel-control' href='#" + carouselId + "' data-slide='prev'>";
+		html += "<span class='glyphicon glyphicon-chevron-left'></span>";
+		html += "<span class='sr-only'>Previous</span>";
+		html += "</a>";
 
-        html += "<a class='right carousel-control' href='#" + carouselId + "' data-slide='next'>";
-        html += "<span class='glyphicon glyphicon-chevron-right'></span>";
-        html += "<span class='sr-only'>Next</span>";
-        html += "</a>";
+		html += "<a class='right carousel-control' href='#" + carouselId + "' data-slide='next'>";
+		html += "<span class='glyphicon glyphicon-chevron-right'></span>";
+		html += "<span class='sr-only'>Next</span>";
+		html += "</a>";
 
-        html += "</div>";
+		html += "</div>";
 
-        this.nextCarouselId++;
+		this.nextCarouselId++;
 
-        $(html).insertAfter(table);
-    },
+		$(html).insertAfter(table);
+	},
 
-    makePopup: function(table, skipFirstRow, parameters) {
-        var popupId = parameters.name != undefined ? parameters.name : 'latte-popup' + this.nextPopupId++;
-        this.popupIds.push(popupId);
-        var title = null;
-        var contents = [];
-        var isTitle = true;
+	makePopup: function(table, skipFirstRow, parameters) {
+		var popupId = parameters.name != undefined ? parameters.name : 'latte-popup' + this.nextPopupId++;
+		this.popupIds.push(popupId);
+		var title = null;
+		var contents = [];
+		var isTitle = true;
 
 		this.forEachTableRowData(table, skipFirstRow, function(td) {
 			if (isTitle) {
@@ -404,60 +427,60 @@ var Latte = {
 				isTitle = false;
 			}
 			contents.push(td.html());
-        });
+		});
 
-        table.hide();
+		table.hide();
 
-        var content;
-        if (contents.length > 1) {
-            content = contents[1];
-        } else {
-            title = "";
-            content = contents[0];
-        }
+		var content;
+		if (contents.length > 1) {
+			content = contents[1];
+		} else {
+			title = "";
+			content = contents[0];
+		}
 
-        var html = "<div id='" + popupId + "' class='latte-popup'>";
-        html += "<div class='latte-popup-content'>";
-        html += "<div class='latte-popup-header'>";
-        html += "<span class='latte-popup-close'>&times;</span>";
-        html += title;
-        html += "</div>";
-        html += "<div class='latte-popup-body'>";
-        html += content;
-        html += "</div>";
-        html += "</div>";
-        html += "</div>";
+		var html = "<div id='" + popupId + "' class='latte-popup'>";
+		html += "<div class='latte-popup-content'>";
+		html += "<div class='latte-popup-header'>";
+		html += "<span class='latte-popup-close'>&times;</span>";
+		html += title;
+		html += "</div>";
+		html += "<div class='latte-popup-body'>";
+		html += content;
+		html += "</div>";
+		html += "</div>";
+		html += "</div>";
 
-        $(html).insertAfter(table);
-    },
+		$(html).insertAfter(table);
+	},
 
-    makeFloat: function(table, skipFirstRow, parameters) {
-        var content = "";
+	makeFloat: function(table, skipFirstRow, parameters) {
+		var content = "";
 
 		this.forEachTableRowData(table, skipFirstRow, function(td) {
 			content = td.html();
-        });
+		});
 
-        table.hide();
+		table.hide();
 
-        var style = "";
-        if (parameters.offset != undefined) {
-            try {
-                style = " style='bottom:" + (parseInt(parameters.offset) + 90) + "px'";
-            } catch (e) {}
-        }
-        var html = "<div class='latte-float'" + style + ">";
-        html += content;
-        html += "</div>";
+		var style = "";
+		if (parameters.offset != undefined) {
+			try {
+				style = " style='bottom:" + (parseInt(parameters.offset) + 90) + "px'";
+			} catch (e) {}
+		}
+		var html = "<div class='latte-float'" + style + ">";
+		html += content;
+		html += "</div>";
 
-        $(html).insertAfter(table);
-    },
+		$(html).insertAfter(table);
+	},
 
-    makePopupMenu: function(table, skipFirstRow, parameters) {
-        var menu = {
-            menu: []
-        };
-        var current = null;
+	makePopupMenu: function(table, skipFirstRow, parameters) {
+		var menu = {
+			menu: []
+		};
+		var current = null;
 
 		this.forEachTableRow(table, skipFirstRow, function(tr) {
 			var level1Text = "";
@@ -499,169 +522,169 @@ var Latte = {
 					linkTarget: level2LinkTarget
 				});
 			}
-        });
+		});
 
-        table.hide();
+		table.hide();
 
-        if (parameters.name != undefined) {
-            menu["name"] = parameters.name;
-        }
-        if (parameters.offsetx != undefined) {
-            menu["offsetX"] = parseInt(parameters.offsetx);
-        } else {
-            menu["offsetX"] = 0;
-        }
-        if (parameters.offsety != undefined) {
-            menu["offsetY"] = parseInt(parameters.offsety);
-        } else {
-            menu["offsetY"] = 0;
-        }
+		if (parameters.name != undefined) {
+			menu["name"] = parameters.name;
+		}
+		if (parameters.offsetx != undefined) {
+			menu["offsetX"] = parseInt(parameters.offsetx);
+		} else {
+			menu["offsetX"] = 0;
+		}
+		if (parameters.offsety != undefined) {
+			menu["offsetY"] = parseInt(parameters.offsety);
+		} else {
+			menu["offsetY"] = 0;
+		}
 
-        if (menu.name == undefined) {
-            return;
-        }
+		if (menu.name == undefined) {
+			return;
+		}
 
-        this.popupMenus.push(menu);
+		this.popupMenus.push(menu);
 
-        var html = "<div id='latte-popupmenu-" + menu.name + "' class='latte-popupmenu' style='display:none' offsetX='" + menu.offsetX + "' offsetY='" + menu.offsetY + "'><ul>";
-        for (var i = 0; i < menu.menu.length; i++) {
-            html += "<li>" + menu.menu[i].title;
-            var submenu = menu.menu[i].submenu;
-            if (submenu.length > 0) {
-                html += "<ul>";
-                for (var j = 0; j < submenu.length; j++) {
-                    html += "<li";
-                    if (submenu[j].link != null) {
-                        html += " link='" + this.htmlEncode(submenu[j].link) + "'";
-                        if (submenu[j].linkTarget != null) {
-                            html += " linktarget='" + this.htmlEncode(submenu[j].linkTarget) + "'";
-                        }
-                    }
-                    html += ">" + this.htmlEncode(submenu[j].title) + "</li>";
-                }
-                html += "</ul>";
-            }
-            html += "</li>";
-        }
-        html += "</ul></div>";
+		var html = "<div id='latte-popupmenu-" + menu.name + "' class='latte-popupmenu' style='display:none' offsetX='" + menu.offsetX + "' offsetY='" + menu.offsetY + "'><ul>";
+		for (var i = 0; i < menu.menu.length; i++) {
+			html += "<li>" + menu.menu[i].title;
+			var submenu = menu.menu[i].submenu;
+			if (submenu.length > 0) {
+				html += "<ul>";
+				for (var j = 0; j < submenu.length; j++) {
+					html += "<li";
+					if (submenu[j].link != null) {
+						html += " link='" + this.htmlEncode(submenu[j].link) + "'";
+						if (submenu[j].linkTarget != null) {
+							html += " linktarget='" + this.htmlEncode(submenu[j].linkTarget) + "'";
+						}
+					}
+					html += ">" + this.htmlEncode(submenu[j].title) + "</li>";
+				}
+				html += "</ul>";
+			}
+			html += "</li>";
+		}
+		html += "</ul></div>";
 
-        var container = $('#popupmenuholder');
-        if (container.length == 0) {
-            $("<div id='latte-popupmenuholder' style='position:relative;'></div>").insertAfter(table);
-            container = $('#latte-popupmenuholder');
-        }
+		var container = $('#popupmenuholder');
+		if (container.length == 0) {
+			$("<div id='latte-popupmenuholder' style='position:relative;'></div>").insertAfter(table);
+			container = $('#latte-popupmenuholder');
+		}
 
-        $(html).appendTo(container);
-    },
+		$(html).appendTo(container);
+	},
 
-    makeImageMap: function(table, skipFirstRow, parameters) {
-        var isImage = true;
-        var areas = [];
-        var image = null;
-        var mapName = 'latte-map' + this.nextMapId;
-        this.nextMapId++;
+	makeImageMap: function(table, skipFirstRow, parameters) {
+		var isImage = true;
+		var areas = [];
+		var image = null;
+		var mapName = 'latte-map' + this.nextMapId;
+		this.nextMapId++;
 
-        this.forEachTableRow(table, skipFirstRow, function(row) {
-            if (isImage) {
-                isImage = false;
-                image = row.find('img').first();
-                image.attr('usemap', '#' + mapName);
-            } else {
-                var tds = row.find('td');
-                if (tds.length == 3) {
-                    var shape = Latte.trim($(tds[1]).text()).toLowerCase();
-                    if (shape == 'rectangle') {
-                        shape = 'rect';
-                    }
-                    var coords = Latte.trim($(tds[2]).text());
-                    var alt = Latte.trim($(tds[0]).text());
-                    var link = null;
-                    var linkTarget = null;
-                    var anchor = $(tds[0]).find('a');
-                    if (anchor.length > 0) {
-                        link = anchor.attr('href') != undefined ? anchor.attr('href') : null;
-                        linkTarget = anchor.attr('target') != undefined ? anchor.attr('target') : null;
-                    }
-                    areas.push({
-                        shape: shape,
-                        coords: coords,
-                        link: link,
-                        target: linkTarget
-                    });
-                }
-            }
-        });
+		this.forEachTableRow(table, skipFirstRow, function(row) {
+			if (isImage) {
+				isImage = false;
+				image = row.find('img').first();
+				image.attr('usemap', '#' + mapName);
+			} else {
+				var tds = row.find('td');
+				if (tds.length == 3) {
+					var shape = Latte.trim($(tds[1]).text()).toLowerCase();
+					if (shape == 'rectangle') {
+						shape = 'rect';
+					}
+					var coords = Latte.trim($(tds[2]).text());
+					var alt = Latte.trim($(tds[0]).text());
+					var link = null;
+					var linkTarget = null;
+					var anchor = $(tds[0]).find('a');
+					if (anchor.length > 0) {
+						link = anchor.attr('href') != undefined ? anchor.attr('href') : null;
+						linkTarget = anchor.attr('target') != undefined ? anchor.attr('target') : null;
+					}
+					areas.push({
+						shape: shape,
+						coords: coords,
+						link: link,
+						target: linkTarget
+					});
+				}
+			}
+		});
 
-        table.hide();
+		table.hide();
 
-        var html = "<map name='" + mapName + "'>";
-        for (var i = 0; i < areas.length; i++) {
-            var area = areas[i];
-            html += "<area shape='" + area.shape + "' coords='" + area.coords + "' href='" + this.htmlEncode(area.link) + "'";
-            if (area.linkTarget != null) {
-                html += " target='" + area.linkTarget + "'";
-            }
-            html += "/>";
-        }
-        html += "</map>";
+		var html = "<map name='" + mapName + "'>";
+		for (var i = 0; i < areas.length; i++) {
+			var area = areas[i];
+			html += "<area shape='" + area.shape + "' coords='" + area.coords + "' href='" + this.htmlEncode(area.link) + "'";
+			if (area.linkTarget != null) {
+				html += " target='" + area.linkTarget + "'";
+			}
+			html += "/>";
+		}
+		html += "</map>";
 
-        $(html).insertAfter(table);
-        $(image).insertAfter(table);
-    },
+		$(html).insertAfter(table);
+		$(image).insertAfter(table);
+	},
 
-    makeTip: function(table, skipFirstRow, parameters) {
-    	var content = "";
-    	this.forEachTableRowData(table, skipFirstRow, function(row) {
+	makeTip: function(table, skipFirstRow, parameters) {
+		var content = "";
+		this.forEachTableRowData(table, skipFirstRow, function(row) {
 			content = row.html();
-    	});
+		});
 
 		table.hide();
 
 		if (parameters.name != undefined) {
 			this.tipsMap[parameters.name] = content;
 		}
-    },
+	},
 
-    makeSticky: function(table, skipFirstRow, parameters) {
-    	var content = null;
-    	var stickyContent = null;
-    	this.forEachTableRowData(table, skipFirstRow, function(row) {
+	makeSticky: function(table, skipFirstRow, parameters) {
+		var content = null;
+		var stickyContent = null;
+		this.forEachTableRowData(table, skipFirstRow, function(row) {
 			if (content == null) {
 				content = row.html();
 			} else {
 				stickyContent = row.html();
 			}
-    	});
+		});
 		table.hide();
 
-		var id = "latte-sticky" + this.nextStickyId ++;
+		var id = "latte-sticky" + this.nextStickyId++;
 		var html = "<div id='" + id + "-content' style='position:relative'>";
 		html += "<div id='" + id + "-sticky' style='position:absolute;top:0px;' class='latte-sticky'>";
 		html += stickyContent + "</div>" + content + "</div>";;
 		this.stickys.push(id);
 
 		$(html).insertAfter(table);
-    },
+	},
 
-    // utilities
+	// utilities
 
-    forEachTableRow: function(table, skipFirstRow, handler) {
+	forEachTableRow: function(table, skipFirstRow, handler) {
 		if (table.find("> tbody").length > 0) {
 			this.forEach(table, "> tbody > tr", skipFirstRow, handler);
 		} else {
 			this.forEach(table, "> tr", skipFirstRow, handler);
 		}
-    },
+	},
 
-    forEachTableRowData: function(table, skipFirstRow, handler) {
+	forEachTableRowData: function(table, skipFirstRow, handler) {
 		if (table.find("> tbody").length > 0) {
 			this.forEach(table, "> tbody > tr > td", skipFirstRow, handler);
 		} else {
 			this.forEach(table, "> tr > td", skipFirstRow, handler);
 		}
-    },
+	},
 
-    forEach: function(target, query, skipFirstRow, handler) {
+	forEach: function(target, query, skipFirstRow, handler) {
 		var isFirstRow = skipFirstRow;
 		target.find(query).each(function() {
 			if (isFirstRow) {
@@ -670,302 +693,302 @@ var Latte = {
 				handler($(this));
 			}
 		});
-    },
+	},
 
-    extractParameters: function(raw) {
-        var parameters = {};
-        var nest = 0;
-        var data = "";
-        for (var i = 0; i < raw.length; i++) {
-            var ch = raw.charAt(i);
-            if (ch == '[') {
-                nest++;
-            } else if (ch == ']') {
-                nest--;
-                var pair = data.split("=");
-                if (pair.length == 2) {
-                    parameters[pair[0].toLowerCase().trim()] = pair[1].trim();
-                }
-                data = "";
-            } else {
-                if (nest == 1) {
-                    data += ch;
-                }
-            }
-        }
-        return parameters;
-    },
+	extractParameters: function(raw) {
+		var parameters = {};
+		var nest = 0;
+		var data = "";
+		for (var i = 0; i < raw.length; i++) {
+			var ch = raw.charAt(i);
+			if (ch == '[') {
+				nest++;
+			} else if (ch == ']') {
+				nest--;
+				var pair = data.split("=");
+				if (pair.length == 2) {
+					parameters[pair[0].toLowerCase().trim()] = pair[1].trim();
+				}
+				data = "";
+			} else {
+				if (nest == 1) {
+					data += ch;
+				}
+			}
+		}
+		return parameters;
+	},
 
-    removeParameters: function(raw) {
-        var nest = 0;
-        var output = "";
-        for (var i = 0; i < raw.length; i++) {
-            var ch = raw.charAt(i);
-            if (ch == '[') {
-                nest++;
-            } else if (ch == ']') {
-                nest--;
-            } else {
-                if (nest == 0) {
-                    output += ch;
-                }
-            }
-        }
-        return output.trim();
-    },
+	removeParameters: function(raw) {
+		var nest = 0;
+		var output = "";
+		for (var i = 0; i < raw.length; i++) {
+			var ch = raw.charAt(i);
+			if (ch == '[') {
+				nest++;
+			} else if (ch == ']') {
+				nest--;
+			} else {
+				if (nest == 0) {
+					output += ch;
+				}
+			}
+		}
+		return output.trim();
+	},
 
 	getContainer: function() {
 		var container = $('#s4-workspace');
-	    if (container.length == 0) {
-	    	container = window;
-        }
-        return container;
+		if (container.length == 0) {
+			container = window;
+		}
+		return container;
 	},
 
-    scrollTo: function(target) {
-        this.getContainer().animate({
-            scrollTop: target.offset().top - Latte.getContainer().offset().top
-        }, 200);
-    },
+	scrollTo: function(target) {
+		this.getContainer().animate({
+			scrollTop: target.offset().top - Latte.getContainer().offset().top
+		}, 200);
+	},
 
-    htmlEncode: function(value) {
-        return $('<div/>').text(value).html();
-    },
+	htmlEncode: function(value) {
+		return $('<div/>').text(value).html();
+	},
 
-    trim: function(s) {
-        s = s.replace(/\u200B/g, ''); // remove zero width space characters!
-        return s.trim();
-    },
+	trim: function(s) {
+		s = s.replace(/\u200B/g, ''); // remove zero width space characters!
+		return s.trim();
+	},
 
-    parsePixel: function(s) {
-    	if (s.indexOf("px") != -1) {
-    		s = s.replace("px", "");
-    	}
-    	return parseInt(s.trim());
-    },
+	parsePixel: function(s) {
+		if (s.indexOf("px") != -1) {
+			s = s.replace("px", "");
+		}
+		return parseInt(s.trim());
+	},
 
-    // parsing logic
+	// parsing logic
 
-    parse: function() {
-        if (!this.inDesignMode) {
-            $("table").each(function() {
-                var row;
-                var skipFirstRow;
-                var table;
-                var ths = $(this).find("> tbody > tr > th");
-                var tds = $(this).find("> tbody > tr > td");
-                if (ths.length > 0) {
-                    row = ths.first();
-                    table = row.parent().parent().parent();
-                    skipFirstRow = false;
-                } else if (tds.length > 0) {
-                    row = tds.first();
-                    table = row.parent().parent().parent();
-                    skipFirstRow = true;
-                } else {
-                    ths = $(this).find("> tr > th");
-                    tds = $(this).find("> tr > td");
-                    if (ths.length > 0) {
-                        row = ths.first();
-                        table = row.parent().parent();
-                        skipFirstRow = false;
-                    } else if (tds.length > 0) {
-                        row = tds.first();
-                        table = row.parent().parent();
-                        skipFirstRow = true;
-                    } else {
-                        // table with no row!
-                        return;
-                    }
-                }
-                var parameters = Latte.extractParameters(Latte.trim(row.text()));
-                var rowText = Latte.trim(row.text());
-                if (rowText.indexOf("[Accordion]") != -1) {
-                    Latte.makeAccordion(table, skipFirstRow, parameters);
-                    Latte.hasAccordions = true;
-                } else if (rowText.indexOf("[Tabulator]") != -1) {
-                    Latte.makeTabulator(table, skipFirstRow, parameters);
-                    Latte.hasTabulators = true;
-                } else if (rowText.indexOf("[Carousel]") != -1) {
-                    Latte.makeCarousel(table, skipFirstRow, parameters);
-                } else if (rowText.indexOf("[Popup]") != -1) {
-                    Latte.makePopup(table, skipFirstRow, parameters);
-                    Latte.hasPopups = true;
-                } else if (rowText.indexOf("[Float]") != -1) {
-                    Latte.makeFloat(table, skipFirstRow, parameters);
-                } else if (rowText.indexOf("[PopupMenu]") != -1) {
-                    Latte.makePopupMenu(table, skipFirstRow, parameters);
-                    Latte.hasPopupMenus = true;
-                } else if (rowText.indexOf("ImageMap]") != -1) {
-                    Latte.makeImageMap(table, skipFirstRow, parameters);
-                } else if (rowText.indexOf("[Tip]") != -1) {
-                	Latte.makeTip(table, skipFirstRow, parameters);
-                	Latte.hasTips = true;
-                } else if (rowText.indexOf("[Sticky]") != -1) {
-                	Latte.makeSticky(table, skipFirstRow, parameters);
-                	Latte.hasStickys = true;
-                }
-            });
-        }
-    },
+	parse: function() {
+		if (!this.inDesignMode) {
+			$("table").each(function() {
+				var row;
+				var skipFirstRow;
+				var table;
+				var ths = $(this).find("> tbody > tr > th");
+				var tds = $(this).find("> tbody > tr > td");
+				if (ths.length > 0) {
+					row = ths.first();
+					table = row.parent().parent().parent();
+					skipFirstRow = false;
+				} else if (tds.length > 0) {
+					row = tds.first();
+					table = row.parent().parent().parent();
+					skipFirstRow = true;
+				} else {
+					ths = $(this).find("> tr > th");
+					tds = $(this).find("> tr > td");
+					if (ths.length > 0) {
+						row = ths.first();
+						table = row.parent().parent();
+						skipFirstRow = false;
+					} else if (tds.length > 0) {
+						row = tds.first();
+						table = row.parent().parent();
+						skipFirstRow = true;
+					} else {
+						// table with no row!
+						return;
+					}
+				}
+				var parameters = Latte.extractParameters(Latte.trim(row.text()));
+				var rowText = Latte.trim(row.text());
+				if (rowText.indexOf("[Accordion]") != -1) {
+					Latte.makeAccordion(table, skipFirstRow, parameters);
+					Latte.hasAccordions = true;
+				} else if (rowText.indexOf("[Tabulator]") != -1) {
+					Latte.makeTabulator(table, skipFirstRow, parameters);
+					Latte.hasTabulators = true;
+				} else if (rowText.indexOf("[Carousel]") != -1) {
+					Latte.makeCarousel(table, skipFirstRow, parameters);
+				} else if (rowText.indexOf("[Popup]") != -1) {
+					Latte.makePopup(table, skipFirstRow, parameters);
+					Latte.hasPopups = true;
+				} else if (rowText.indexOf("[Float]") != -1) {
+					Latte.makeFloat(table, skipFirstRow, parameters);
+				} else if (rowText.indexOf("[PopupMenu]") != -1) {
+					Latte.makePopupMenu(table, skipFirstRow, parameters);
+					Latte.hasPopupMenus = true;
+				} else if (rowText.indexOf("ImageMap]") != -1) {
+					Latte.makeImageMap(table, skipFirstRow, parameters);
+				} else if (rowText.indexOf("[Tip]") != -1) {
+					Latte.makeTip(table, skipFirstRow, parameters);
+					Latte.hasTips = true;
+				} else if (rowText.indexOf("[Sticky]") != -1) {
+					Latte.makeSticky(table, skipFirstRow, parameters);
+					Latte.hasStickys = true;
+				}
+			});
+		}
+	},
 
-    init: function() {
-        if (this.hasAccordions) {
-            $(".latte-accordion").each(function() {
-                var button = $(this);
-                button.click(function() {
-                    Latte.toggleAccordion($(this));
-                });
-            });
-        }
+	init: function() {
+		if (this.hasAccordions) {
+			$(".latte-accordion").each(function() {
+				var button = $(this);
+				button.click(function() {
+					Latte.toggleAccordion($(this));
+				});
+			});
+		}
 
-        if (this.hasPopups) {
-            for (var i = 0; i < this.popupIds.length; i++) {
-                var id = "#" + this.popupIds[i];
-                $("a[href='" + id + "']").each(function() {
-                    var popup = $(id);
-                    $(this).click(function() {
-                        popup.css('display', 'block');
-                    });
-                });
-            }
+		if (this.hasPopups) {
+			for (var i = 0; i < this.popupIds.length; i++) {
+				var id = "#" + this.popupIds[i];
+				$("a[href='" + id + "']").each(function() {
+					var popup = $(id);
+					$(this).click(function() {
+						popup.css('display', 'block');
+					});
+				});
+			}
 
-            $(".latte-popup-close").each(function() {
-                var button = $(this);
-                button.click(function() {
-                    var popup = button.parent().parent().parent();
-                    popup.css('display', 'none');
-                });
-            });
+			$(".latte-popup-close").each(function() {
+				var button = $(this);
+				button.click(function() {
+					var popup = button.parent().parent().parent();
+					popup.css('display', 'none');
+				});
+			});
 
-            $(".latte-popup-content").click(function(event) {
-            	event.stopPropagation();
-            });
+			$(".latte-popup-content").click(function(event) {
+				event.stopPropagation();
+			});
 
-            $(".latte-popup").click(function(event) {
-            	$(event.target).css('display', 'none');
-			    event.stopPropagation();
-            });
-        }
+			$(".latte-popup").click(function(event) {
+				$(event.target).css('display', 'none');
+				event.stopPropagation();
+			});
+		}
 
-        if (this.hasPopupMenus) {
-            var handler = function() {
-                var trigger = $(this);
-                trigger.mouseover(function(event) {
-                    var target = $(event.target);
-                    var name = $(this).attr('href').substring(1);
-                    var menu = $('#latte-popupmenu-' + name);
-                    var holder = $('#latte-popupmenuholder');
-                    var workspace = Latte.getContainer();
-                    var shapeX = 0;
-                    var shapeY = 0;
-                    if (target.prop('tagName').toLowerCase() == 'area') {
-                        if (target.attr('shape') == 'rect') {
-                            var coords = target.attr('coords').split(',');
-                            shapeX = parseInt(coords[2]);
-                            shapeY = parseInt(coords[1]);
-                        } else if (target.attr('shape') == 'circle') {
-                            var coords = target.attr('coords').split(',');
-                            shapeX = parseInt(coords[0]) + parseInt(coords[2]);
-                            shapeY = parseInt(coords[1]) - parseInt(coords[2]);
-                        }
-                        // use the associated image as reference instead
-                        var mapName = target.parent().attr('name');
-                        target = $("img[usemap='#" + mapName + "']");
-                    }
-                    var x = (target.offset().left + trigger.outerWidth() + parseInt(menu.attr("offsetx")) - holder.offset().left + shapeX) + "px";
-                    var y = (target.offset().top + parseInt(menu.attr("offsety")) - holder.offset().top + shapeY) + "px";
-                    menu.css({
-                        top: y,
-                        left: x,
-                        position: 'absolute'
-                    });
-                    $('.latte-popupmenu').hide();
-                    menu.fadeIn(500);
-                });
-            };
+		if (this.hasPopupMenus) {
+			var handler = function() {
+				var trigger = $(this);
+				trigger.mouseover(function(event) {
+					var target = $(event.target);
+					var name = $(this).attr('href').substring(1);
+					var menu = $('#latte-popupmenu-' + name);
+					var holder = $('#latte-popupmenuholder');
+					var workspace = Latte.getContainer();
+					var shapeX = 0;
+					var shapeY = 0;
+					if (target.prop('tagName').toLowerCase() == 'area') {
+						if (target.attr('shape') == 'rect') {
+							var coords = target.attr('coords').split(',');
+							shapeX = parseInt(coords[2]);
+							shapeY = parseInt(coords[1]);
+						} else if (target.attr('shape') == 'circle') {
+							var coords = target.attr('coords').split(',');
+							shapeX = parseInt(coords[0]) + parseInt(coords[2]);
+							shapeY = parseInt(coords[1]) - parseInt(coords[2]);
+						}
+						// use the associated image as reference instead
+						var mapName = target.parent().attr('name');
+						target = $("img[usemap='#" + mapName + "']");
+					}
+					var x = (target.offset().left + trigger.outerWidth() + parseInt(menu.attr("offsetx")) - holder.offset().left + shapeX) + "px";
+					var y = (target.offset().top + parseInt(menu.attr("offsety")) - holder.offset().top + shapeY) + "px";
+					menu.css({
+						top: y,
+						left: x,
+						position: 'absolute'
+					});
+					$('.latte-popupmenu').hide();
+					menu.fadeIn(500);
+				});
+			};
 
-            for (var i = 0; i < this.popupMenus.length; i++) {
-                var menu = this.popupMenus[i];
-                if (menu.name != undefined) {
-                    $("a[href='#" + menu.name + "']").each(handler);
-                    $("area[href='#" + menu.name + "']").each(handler);
-                }
-            }
+			for (var i = 0; i < this.popupMenus.length; i++) {
+				var menu = this.popupMenus[i];
+				if (menu.name != undefined) {
+					$("a[href='#" + menu.name + "']").each(handler);
+					$("area[href='#" + menu.name + "']").each(handler);
+				}
+			}
 
-            $('.latte-popupmenu > ul > li').each(function() {
-                var li = $(this);
-                var ul = $(this).find("ul");
-                li.mouseover(function() {
-                    var li = $(this);
-                    $('.latte-popupmenu > ul > li.active').removeClass('active');
-                    li.addClass('active');
-                    var x = li.outerWidth();
-                    var y = 0;
-                    var ul = li.find("ul");
-                    if (ul.length == 0 || ul.css('display') == 'none') {
-                        $('.latte-popupmenu > ul > li > ul').hide();
-                        if (ul.length > 0) {
-                            ul.css({
-                                top: y,
-                                left: x,
-                                position: 'absolute'
-                            });
-                            ul.fadeIn(500);
-                        }
-                    }
-                });
-                li.click(function(event) {
-                    var li = $(event.target);
-                    if (li.attr('link') != undefined) {
-                        var link = li.attr('link');
-                        var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
-                        if (target == 'self') {
-                            location = link;
-                        } else {
-                            window.open(link, target);
-                        }
-                    } else {
-                        event.stopPropagation();
-                    }
-                });
-            });
+			$('.latte-popupmenu > ul > li').each(function() {
+				var li = $(this);
+				var ul = $(this).find("ul");
+				li.mouseover(function() {
+					var li = $(this);
+					$('.latte-popupmenu > ul > li.active').removeClass('active');
+					li.addClass('active');
+					var x = li.outerWidth();
+					var y = 0;
+					var ul = li.find("ul");
+					if (ul.length == 0 || ul.css('display') == 'none') {
+						$('.latte-popupmenu > ul > li > ul').hide();
+						if (ul.length > 0) {
+							ul.css({
+								top: y,
+								left: x,
+								position: 'absolute'
+							});
+							ul.fadeIn(500);
+						}
+					}
+				});
+				li.click(function(event) {
+					var li = $(event.target);
+					if (li.attr('link') != undefined) {
+						var link = li.attr('link');
+						var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
+						if (target == 'self') {
+							location = link;
+						} else {
+							window.open(link, target);
+						}
+					} else {
+						event.stopPropagation();
+					}
+				});
+			});
 
-            $('.latte-popupmenu > ul > li > ul > li').each(function() {
-                var li = $(this);
-                li.mouseover(function() {
-                    var li = $(this);
-                    $('.latte-popupmenu > ul > li > ul > li.active').removeClass('active');
-                    li.addClass('active');
-                });
-                li.click(function(event) {
-                    var li = $(event.target);
-                    if (li.attr('link') != undefined) {
-                        var link = li.attr('link');
-                        var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
-                        if (target == 'self') {
-                            location = link;
-                        } else {
-                            window.open(link, target);
-                        }
-                    } else {
-                        event.stopPropagation();
-                    }
-                });
-            });
+			$('.latte-popupmenu > ul > li > ul > li').each(function() {
+				var li = $(this);
+				li.mouseover(function() {
+					var li = $(this);
+					$('.latte-popupmenu > ul > li > ul > li.active').removeClass('active');
+					li.addClass('active');
+				});
+				li.click(function(event) {
+					var li = $(event.target);
+					if (li.attr('link') != undefined) {
+						var link = li.attr('link');
+						var target = li.attr('linktarget') != undefined ? li.attr('linktarget') : '_self';
+						if (target == 'self') {
+							location = link;
+						} else {
+							window.open(link, target);
+						}
+					} else {
+						event.stopPropagation();
+					}
+				});
+			});
 
-            $(document).click(function() {
-                $('.latte-popupmenu').fadeOut(500, function() {
-                    $('.latte-popupmenu li.active').removeClass('active');
-                    $('.latte-popupmenu > ul > li > ul').hide();
-                });
-            });
-        }
+			$(document).click(function() {
+				$('.latte-popupmenu').fadeOut(500, function() {
+					$('.latte-popupmenu li.active').removeClass('active');
+					$('.latte-popupmenu > ul > li > ul').hide();
+				});
+			});
+		}
 
 		$("a[href='#tip']").each(function() {
 			var anchor = $(this);
 			if (anchor.attr('title') != undefined) {
-				var id = 'latte-tip' + Latte.nextTipId ++;
+				var id = 'latte-tip' + Latte.nextTipId++;
 				var title = anchor.attr('title');
 				anchor.attr('latte-title', title);
 				anchor.attr('latte-id', id);
@@ -976,7 +999,10 @@ var Latte = {
 					var anchor = $(event.target)
 					var id = anchor.attr('latte-id');
 					var tip = $('#' + id);
-					tip.css({ top: anchor.outerHeight() + 10, left: -anchor.outerWidth() });
+					tip.css({
+						top: anchor.outerHeight() + 10,
+						left: -anchor.outerWidth()
+					});
 					tip.fadeIn(200);
 				});
 				anchor.mouseout(function(event) {
@@ -990,8 +1016,8 @@ var Latte = {
 			for (var id in this.tipsMap) {
 				var content = this.tipsMap[id];
 				$("a[href='#" + id + "'").each(function() {
-				 	var anchor = $(this);
-					var id = 'latte-tip' + Latte.nextTipId ++;
+					var anchor = $(this);
+					var id = 'latte-tip' + Latte.nextTipId++;
 					anchor.attr('latte-id', id);
 					var html = "<span style='position:relative'><div id='" + id + "' class='latte-tip' style='display:none'>" + content + "<div></span>";
 					$(html).insertAfter(anchor);
@@ -999,7 +1025,10 @@ var Latte = {
 						var anchor = $(event.target)
 						var id = anchor.attr('latte-id');
 						var tip = $('#' + id);
-						tip.css({ top: anchor.outerHeight() + 10, left: -anchor.outerWidth() });
+						tip.css({
+							top: anchor.outerHeight() + 10,
+							left: -anchor.outerWidth()
+						});
 						tip.fadeIn(200);
 					});
 					anchor.mouseout(function(event) {
@@ -1012,7 +1041,7 @@ var Latte = {
 
 		if (this.hasStickys) {
 			this.getContainer().scroll(function() {
-				for (var i = 0 ; i < Latte.stickys.length ; i ++) {
+				for (var i = 0; i < Latte.stickys.length; i++) {
 					var id = Latte.stickys[i];
 					var container = Latte.getContainer();
 					var content = $('#' + id + '-content');
@@ -1020,12 +1049,24 @@ var Latte = {
 					var y = container.offset().top - content.offset().top;
 					if (y >= 0) {
 						if (y < (content.outerHeight(true) - sticky.outerHeight(true))) {
-							sticky.css({'position': 'fixed', top: container.offset().top, bottom: ""});
+							sticky.css({
+								'position': 'fixed',
+								top: container.offset().top,
+								bottom: ""
+							});
 						} else {
-							sticky.css({ 'position': 'absolute', top: "", bottom: 0 });
+							sticky.css({
+								'position': 'absolute',
+								top: "",
+								bottom: 0
+							});
 						}
 					} else {
-						sticky.css({'position': 'absolute', top: 0, bottom: "" });
+						sticky.css({
+							'position': 'absolute',
+							top: 0,
+							bottom: ""
+						});
 					}
 				}
 				Latte.computeStickyOffset();
@@ -1034,46 +1075,46 @@ var Latte = {
 			this.computeStickyOffset();
 		}
 
-        // do expansion
+		// do expansion
 
-        $(function() {
-            var hash = window.location.hash.substr(1);
-            if (Latte.autoExpands[hash] != undefined) {
-                Latte.autoExpands[hash]();
-            }
-        });
-    },
+		$(function() {
+			var hash = window.location.hash.substr(1);
+			if (Latte.autoExpands[hash] != undefined) {
+				Latte.autoExpands[hash]();
+			}
+		});
+	},
 
-    convert: function() {
-        if (!this.inDesignMode) {
-            this.parse();
-            this.init();
-        }
-    },
+	convert: function() {
+		if (!this.inDesignMode) {
+			this.parse();
+			this.init();
+		}
+	},
 
-    // component functions
+	// component functions
 
-    toggleAccordion: function(button) {
-        button.toggleClass("latte-active-accordion");
-        var panel = button.next();
-        if (panel.css("overflow") == "hidden") {
-            panel.css("overflow", "");
-            panel.css("max-height", panel.prop("scrollHeight") + "px");
-        } else {
-            panel.css("overflow", "hidden");
-            panel.css("max-height", "");
-        }
-    },
+	toggleAccordion: function(button) {
+		button.toggleClass("latte-active-accordion");
+		var panel = button.next();
+		if (panel.css("overflow") == "hidden") {
+			panel.css("overflow", "");
+			panel.css("max-height", panel.prop("scrollHeight") + "px");
+		} else {
+			panel.css("overflow", "hidden");
+			panel.css("max-height", "");
+		}
+	},
 
-    openTab: function(button, tabulator, tab) {
-        $('#' + tabulator + ' .latte-tab-button').removeClass('active');
-        $(button).addClass('active');
-        $('#' + tabulator + ' .latte-tab-body').hide();
-        $('#' + tab).show();
-    },
+	openTab: function(button, tabulator, tab) {
+		$('#' + tabulator + ' .latte-tab-button').removeClass('active');
+		$(button).addClass('active');
+		$('#' + tabulator + ' .latte-tab-body').hide();
+		$('#' + tab).show();
+	},
 
-    computeStickyOffset: function() {
-    	for (var i = 0 ; i < this.stickys.length ; i ++) {
+	computeStickyOffset: function() {
+		for (var i = 0; i < this.stickys.length; i++) {
 			var id = this.stickys[i];
 			var content = $('#' + id + '-content');
 			var sticky = $('#' + id + '-sticky');
@@ -1087,9 +1128,9 @@ var Latte = {
 				// right border and right margin
 				offsetX = content.outerWidth(false) + parseInt(content.css('marginRight')) - Latte.parsePixel(content.css('border-left-width'));
 			}
-			sticky.css('left',offsetX);
+			sticky.css('left', offsetX);
 		}
-    }
+	}
 };
 
 // start parsing and conversion here!
@@ -1098,4 +1139,3 @@ Latte.convert();
 
 //]]>
 </script>
-
