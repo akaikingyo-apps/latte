@@ -1072,7 +1072,9 @@ var Latte = {
 				Latte.computeStickyOffset();
 			});
 
-			this.computeStickyOffset();
+			this.getContainer.resize(function() {
+				Latte.computeStickyOffset();
+			});
 		}
 
 		// do expansion
