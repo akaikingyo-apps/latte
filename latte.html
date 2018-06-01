@@ -46,25 +46,16 @@
 
 .latte-popup {
 	display: none;
-	/* hidden by default */
 	position: fixed;
-	/* stay in place */
-	z-index: 1002;
-	/* sit on top */
 	padding-top: 100px;
-	/* location of the box */
+	z-index: 1002;
 	left: 0;
 	top: 0;
 	width: 100%;
-	/* full width */
 	height: 100%;
-	/* full height */
 	overflow: auto;
-	/* enable scroll if needed */
 	background-color: rgb(0, 0, 0);
-	/* fallback color */
 	background-color: rgba(0, 0, 0, 0.4);
-	/* black w/ opacity */
 }
 
 .latte-popup-content {
@@ -855,9 +846,13 @@ var Latte = {
 			for (var i = 0; i < this.popupIds.length; i++) {
 				var id = "#" + this.popupIds[i];
 				$("a[href='" + id + "']").each(function() {
-					var popup = $(id);
+					$(this).attr('latte-id', id);
 					$(this).click(function() {
+						var id = $(this).attr('latte-id');
+						var popup = $(id);
+						var popupContent = $(id + " .latte-popup-content");
 						popup.css('display', 'block');
+						popup.css('padding-top', ($(window).height() - popupContent.height()) / 2);
 					});
 				});
 			}
