@@ -254,6 +254,7 @@ var Latte = {
 	tipsMap: {},
 	stickys: [],
 	autoExpands: {},
+	runOnce : false,
 
 	// the core functions
 
@@ -1092,7 +1093,8 @@ var Latte = {
 	},
 
 	convert: function() {
-		if (!this.inDesignMode) {
+		if (!this.inDesignMode && !this.runOnce) {
+			this.runOnce = true;
 			this.parse();
 			this.init();
 		}
