@@ -1024,7 +1024,7 @@ var Latte = {
 		if (this.hasTips) {
 			for (var id in this.tipsMap) {
 				var content = this.tipsMap[id];
-				$("a[href='#" + id + "'").each(function() {
+				$("a[href='#" + id + "']").each(function() {
 					var anchor = $(this);
 					var id = 'latte-tip' + Latte.nextTipId++;
 					anchor.attr('latte-id', id);
