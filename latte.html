@@ -548,7 +548,16 @@ var Latte = {
 
 		var html = "<div id='latte-popupmenu-" + menu.name + "' class='latte-popupmenu' style='display:none' offsetX='" + menu.offsetX + "' offsetY='" + menu.offsetY + "'><ul>";
 		for (var i = 0; i < menu.menu.length; i++) {
-			html += "<li>" + menu.menu[i].title;
+			if (menu.menu[i].link != null) {
+				html += "<li";
+				html += " link='" + this.htmlEncode(menu.menu[i].link) + "'";
+				if (menu.menu[i].linkTarget != null) {
+					html += " linktarget='" + this.htmlEncode(menu.menu[i].linkTarget) + "'";
+				}
+				html += ">" + this.htmlEncode(menu.menu[i].title);
+			} else {
+				html += "<li>" + this.htmlEncode(menu.menu[i].title);
+			}
 			var submenu = menu.menu[i].submenu;
 			if (submenu.length > 0) {
 				html += "<ul>";
