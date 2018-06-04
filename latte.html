@@ -272,8 +272,6 @@ if (window.Latte == null) {
 				isTitle = !isTitle;
 			});
 
-			table.hide();
-
 			var html = "";
 
 			for (var i = 0; i < titles.length; i++) {
@@ -295,6 +293,7 @@ if (window.Latte == null) {
 			}
 
 			$(html).insertAfter(table);
+			table.remove();
 		},
 
 		makeTabulator: function(table, skipFirstRow, parameters) {
@@ -311,8 +310,6 @@ if (window.Latte == null) {
 				}
 				isTitle = !isTitle;
 			});
-
-			table.hide();
 
 			var html = "<div id='latte-tabulator" + this.nextTabId + "'><div class='latte-tab-header'>";
 			for (var i = 0; i < titles.length; i++) {
@@ -356,6 +353,7 @@ if (window.Latte == null) {
 			this.nextTabId += titles.length;
 
 			$(html).insertAfter(table);
+			table.remove();
 		},
 
 		makeCarousel: function(table, skipFirstRow, parameters) {
@@ -365,7 +363,6 @@ if (window.Latte == null) {
 				bodies.push(td.html());
 			});
 
-			table.hide();
 			var carouselId = "latte-carousel" + this.nextCarouselId;
 
 			var html = "<div id='" + carouselId + "' class='carousel slide' data-ride='carousel'>";
@@ -404,6 +401,7 @@ if (window.Latte == null) {
 			this.nextCarouselId++;
 
 			$(html).insertAfter(table);
+			table.remove();
 		},
 
 		makePopup: function(table, skipFirstRow, parameters) {
@@ -420,8 +418,6 @@ if (window.Latte == null) {
 				}
 				contents.push(td.html());
 			});
-
-			table.hide();
 
 			var content;
 			if (contents.length > 1) {
@@ -444,6 +440,7 @@ if (window.Latte == null) {
 			html += "</div>";
 
 			$(html).insertAfter(table);
+			table.remove();
 		},
 
 		makeFloat: function(table, skipFirstRow, parameters) {
@@ -452,8 +449,6 @@ if (window.Latte == null) {
 			this.forEachTableRowData(table, skipFirstRow, function(td) {
 				content = td.html();
 			});
-
-			table.hide();
 
 			var style = "";
 			if (parameters.offset != undefined) {
@@ -466,6 +461,7 @@ if (window.Latte == null) {
 			html += "</div>";
 
 			$(html).insertAfter(table);
+			table.remove();
 		},
 
 		makePopupMenu: function(table, skipFirstRow, parameters) {
@@ -515,8 +511,6 @@ if (window.Latte == null) {
 					});
 				}
 			});
-
-			table.hide();
 
 			if (parameters.name != undefined) {
 				menu["name"] = parameters.name;
@@ -576,6 +570,7 @@ if (window.Latte == null) {
 			}
 
 			$(html).appendTo(container);
+			table.remove();
 		},
 
 		makeImageMap: function(table, skipFirstRow, parameters) {
@@ -616,8 +611,6 @@ if (window.Latte == null) {
 				}
 			});
 
-			table.hide();
-
 			var html = "<map name='" + mapName + "'>";
 			for (var i = 0; i < areas.length; i++) {
 				var area = areas[i];
@@ -631,6 +624,7 @@ if (window.Latte == null) {
 
 			$(html).insertAfter(table);
 			$(image).insertAfter(table);
+			table.remove();
 		},
 
 		makeTip: function(table, skipFirstRow, parameters) {
@@ -639,11 +633,11 @@ if (window.Latte == null) {
 				content = row.html();
 			});
 
-			table.hide();
-
 			if (parameters.name != undefined) {
 				this.tipsMap[parameters.name] = content;
 			}
+
+			table.remove();
 		},
 
 		makeSticky: function(table, skipFirstRow, parameters) {
@@ -656,7 +650,6 @@ if (window.Latte == null) {
 					stickyContent = row.html();
 				}
 			});
-			table.hide();
 
 			var id = "latte-sticky" + this.nextStickyId++;
 			var html = "<div id='" + id + "-content' style='position:relative'>";
@@ -665,6 +658,7 @@ if (window.Latte == null) {
 			this.stickys.push(id);
 
 			$(html).insertAfter(table);
+			table.remove();
 		},
 
 		// utilities
@@ -772,6 +766,7 @@ if (window.Latte == null) {
 
 		parse: function() {
 			if (!this.inDesignMode) {
+				var tables = [];
 				$("table").each(function() {
 					var row;
 					var skipFirstRow;
@@ -805,31 +800,57 @@ if (window.Latte == null) {
 					var parameters = Latte.extractParameters(Latte.trim(row.text()));
 					var rowText = Latte.trim(row.text());
 					if (rowText.indexOf("[Accordion]") != -1) {
+						tables.push({ type: "Accordion", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[Tabulator]") != -1) {
+						 tables.push({ type: "Tabulator", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[Carousel]") != -1) {
+						 tables.push({ type: "Carousel", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[Popup]") != -1) {
+						 tables.push({ type: "Popup", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[Float]") != -1) {
+						 tables.push({ type: "Float", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[PopupMenu]") != -1) {
+						 tables.push({ type: "PopupMenu", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[ImageMap]") != -1) {
+						 tables.push({ type: "ImageMap", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[Tip]") != -1) {
+						 tables.push({ type: "Tip", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					} else if (rowText.indexOf("[Sticky]") != -1) {
+						 tables.push({ type: "Sticky", table: table, skipFirstRow: skipFirstRow, parameters: parameters });
+					}
+				});
+				for (var i = tables.length - 1 ; i >= 0 ; i--) {
+					var t = tables[i];
+					var type = t.type;
+					var table = t.table;
+					var skipFirstRow = t.skipFirstRow;
+					var parameters = t.parameters;
+					if (type == "Accordion") {
 						Latte.makeAccordion(table, skipFirstRow, parameters);
 						Latte.hasAccordions = true;
-					} else if (rowText.indexOf("[Tabulator]") != -1) {
+					} else if (type == "Tabulator") {
 						Latte.makeTabulator(table, skipFirstRow, parameters);
 						Latte.hasTabulators = true;
-					} else if (rowText.indexOf("[Carousel]") != -1) {
+					} else if (type == "Carousel") {
 						Latte.makeCarousel(table, skipFirstRow, parameters);
-					} else if (rowText.indexOf("[Popup]") != -1) {
+					} else if (type == "Popup") {
 						Latte.makePopup(table, skipFirstRow, parameters);
 						Latte.hasPopups = true;
-					} else if (rowText.indexOf("[Float]") != -1) {
+					} else if (type == "Float") {
 						Latte.makeFloat(table, skipFirstRow, parameters);
-					} else if (rowText.indexOf("[PopupMenu]") != -1) {
+					} else if (type == "PopupMenu") {
 						Latte.makePopupMenu(table, skipFirstRow, parameters);
 						Latte.hasPopupMenus = true;
-					} else if (rowText.indexOf("ImageMap]") != -1) {
+					} else if (type == "ImageMap") {
 						Latte.makeImageMap(table, skipFirstRow, parameters);
-					} else if (rowText.indexOf("[Tip]") != -1) {
+					} else if (type == "Tip") {
 						Latte.makeTip(table, skipFirstRow, parameters);
 						Latte.hasTips = true;
-					} else if (rowText.indexOf("[Sticky]") != -1) {
+					} else if (type == "Sticky") {
 						Latte.makeSticky(table, skipFirstRow, parameters);
 						Latte.hasStickys = true;
 					}
-				});
+				}
 			}
 		},
 
